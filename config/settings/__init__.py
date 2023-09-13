@@ -2,12 +2,13 @@ from pathlib import Path
 import importlib
 import environ
 
-env = environ.Env
+env = environ.Env()
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 
+build_env = env.str("BUILD_ENVIRONMENT", "local")
 module_paths = [
-    'config.settings.local',
+    f'config.settings.{build_env}',
 ]
 
 for path in module_paths:
