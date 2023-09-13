@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/local/django/Dockerfile
+    volumes: # persist data and share file between multiple container in host machine
+      - .:/app:z # map the file in host to container
+      - static_volume:/app/staticfiles
+      - media_volume:/app/mediafiles
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+    depends_on:
+      - postgres
+      # - mailhog
+    command: /start.sh
+    networks:
+      - boilerplate-api
+  postgres:
+    build:
+      context: .
+      dockerfile: ./docker/local/postgres/Dockerfile
+    ports:
+      - "5432:5432"
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data # This is the default path to postgres data storage 
+      - local_postgres_data_backups:/backups
+    env_file:
+      - ./.envs/.local/.postgres
+    networks:
+      - boilerplate-api
+
+networks:
+  boilerplate-api:
+    driver: bridge
+
+volumes:
+  static_volume:
+  media_volume:
+  local_postgres_data: {}
+  local_postgres_data_backups: {}
