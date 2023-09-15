@@ -21,11 +21,13 @@ THIRD_PARTY_APPS = [
     "django_countries",
     "drf_yasg",
     "corsheaders",
-    "phonenumbers"
+    "phonenumbers",
+    "phonenumber_field"
 ]
 
 LOCAL_APPS = [
-
+    'core_apps.accounts',
+    'core_apps.jwt_auth'
 ]
 
 INSTALLED_APPS = THIRD_PARTY_APPS + DJANGO_APPS + LOCAL_APPS
@@ -114,3 +116,5 @@ MEDIA_URL = "/mediafiles/"
 MEDIA_ROOT = ROOT_DIR / "mediafiles"
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = 'accounts.MyUser'
