@@ -27,7 +27,8 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     'core_apps.accounts',
-    'core_apps.jwt_auth'
+    'core_apps.jwt_auth',
+    'core_apps.schema'
 ]
 
 INSTALLED_APPS = THIRD_PARTY_APPS + DJANGO_APPS + LOCAL_APPS
@@ -69,6 +70,14 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
 DATABASES = {"default": env.db("DATABASE_URL", f"sqlite:///{ROOT_DIR}/db.sqlite3")}
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'core_apps.schema.paginators.MediumSizePagination',
+    'DEFAULT_RENDERER_CLASSES': [
+        'core_apps.schema.renderers.MyJsonRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ]
+}
 
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.Argon2PasswordHasher",
