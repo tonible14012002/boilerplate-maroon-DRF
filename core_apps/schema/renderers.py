@@ -6,15 +6,20 @@ class MyJsonRenderer(JSONRenderer):
         '''
         Format non-pageable api endpoint
         '''
+        status_code = renderer_context['response'].status_code
+
         formated_data = data
+
         if not ("data" in data and "pageable" in data):
             formated_data = {
                 'pageable': None,
                 'data': data
             }
+
+        formated_data['status_code'] = status_code
         return super().render(formated_data, accepted_media_type, renderer_context)
 
-# SCHEMA FOR RETURNING RESPONSE DATA
+# EXAMPLE SCHEMA FOR RETURNING RESPONSE DATA
 # {
 #     # null if not pageable
 #     pageable: {

@@ -29,7 +29,9 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     'core_apps.accounts',
     'core_apps.jwt_auth',
-    'core_apps.schema'
+    'core_apps.schema',
+    'core_apps.common',
+    'core_apps.profiles',
 ]
 
 INSTALLED_APPS = THIRD_PARTY_APPS + DJANGO_APPS + LOCAL_APPS
@@ -171,3 +173,5 @@ MEDIA_ROOT = ROOT_DIR / "mediafiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = 'accounts.MyUser'
+
+APPEND_SLASH = False

@@ -14,25 +14,27 @@ services:
     env_file:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
-    depends_on:
-      - postgres
-      # - mailhog
+  # FIXME: Using 3rd provider postgres db
+    # depends_on:
+    #   - postgres
+    #   - mailhog
     command: /start.sh
     networks:
       - boilerplate-api
-  postgres:
-    build:
-      context: .
-      dockerfile: ./docker/local/postgres/Dockerfile
-    ports:
-      - "5432:5432"
-    volumes:
-      - local_postgres_data:/var/lib/postgresql/data # This is the default path to postgres data storage 
-      - local_postgres_data_backups:/backups
-    env_file:
-      - ./.envs/.local/.postgres
-    networks:
-      - boilerplate-api
+  # FIXME: Using 3rd provider postgres db
+  # postgres:
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/local/postgres/Dockerfile
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - local_postgres_data:/var/lib/postgresql/data # This is the default path to postgres data storage 
+  #     - local_postgres_data_backups:/backups
+  #   env_file:
+  #     - ./.envs/.local/.postgres
+  #   networks:
+  #     - boilerplate-api
 
 networks:
   boilerplate-api:
@@ -41,5 +43,6 @@ networks:
 volumes:
   static_volume:
   media_volume:
-  local_postgres_data: {}
-  local_postgres_data_backups: {}
+  # FIXME: Using 3rd Provider postgres db
+  # local_postgres_data: {}
+  # local_postgres_data_backups: {}
