@@ -18,6 +18,7 @@ class Profile(TimeStampedModel):
     country = CountryField(null=False, default="VN")
     followers = models.ManyToManyField("self", related_name='following', symmetrical=False)
     city = models.CharField(max_length=200, default="Ho Chi Minh")
+    _nickname = models.CharField(max_length=100, default='', unique=True)
 
     class Meta:
         db_table = "profile"
@@ -30,3 +31,17 @@ class Profile(TimeStampedModel):
 
     def check_is_follow(self, profile):
         return self.followers.filter(pkid=profile.pkid).exists()
+
+    @property
+    def nickname(self):
+        return self._nickname
+
+    @nickname.getter
+    def nickname(self):
+        if not self._nickname:
+            return self.user.username
+        return self._nickname
+
+    @nickname.setter
+    def nickname(self, value):
+        self._nickname = value

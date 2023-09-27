@@ -21,9 +21,10 @@ class UserProfileSerializer(ModelSerializer):
     gender = serializers.CharField(source="profile.gender")
     city = serializers.CharField(source="profile.city")
     country = serializers.CharField(source="profile.country")
+    nickname = serializers.CharField(source="profile.nickname")
 
     class Meta:
-        PROFILE_FIELDS = ['gender', 'country', 'city', 'avatar']
+        PROFILE_FIELDS = ['gender', 'country', 'city', 'avatar', 'nickname']
         USER_FIELDS = [
             'id', 'username', 'first_name', 'last_name', 'email', 'dob',
             'dob', 'phone'
