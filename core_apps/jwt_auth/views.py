@@ -1,10 +1,10 @@
 # Create your views here.
 from .serializers import MyTokenRefreshSerializer, MyTokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
-from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from core_apps.accounts.serializers import UserSerializer
+from core_apps.profiles.serializers import UserProfileSerializer
 
 
 class MyTokenRefreshView(TokenRefreshView):
@@ -20,5 +20,5 @@ class ProfileFromTokenView(APIView):
 
     def post(self, request):
         user = request.user
-        serializer = UserSerializer(user)
+        serializer = UserProfileSerializer(user)
         return Response(serializer.data)

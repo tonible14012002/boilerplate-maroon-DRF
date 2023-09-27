@@ -40,16 +40,3 @@
         data: {...} // user profile data
     }
     ```
-### User-Services
-- Registration
-    -  **`POST`** user-services/account/
-    ```typescript
-    body: {
-        username: string
-        password: string
-        last_name: string
-        first_name: string
-        dob: string // date string
-        phone: string // +84XXXXXXXXX
-    }
-    ```

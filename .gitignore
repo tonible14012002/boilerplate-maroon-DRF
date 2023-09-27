@@ -1,4 +1,5 @@
 # ignore api note
+mediafiles/
 
 # Byte-compiled / optimized / DLL files
 .vscode

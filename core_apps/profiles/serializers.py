@@ -43,6 +43,25 @@ class UserProfileSerializer(ModelSerializer):
 
         return super().to_representation(instance)
 
+    def update(self, instance, validated_data):
+        user = instance
+
+        if not hasattr(user, 'profile'):
+            Profile.objects.create(user=user)
+
+        profile_data = validated_data.pop('profile', {})
+
+        if profile_data is not None:
+            profile = user.profile
+            for field, value in profile_data.items():
+                setattr(profile, field, value)
+            profile.save()
+
+        for field, value in validated_data.items():
+            setattr(user, field, value)
+
+        return user
+
 
 class UserRegistrationSerializer(ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -78,7 +97,7 @@ class UserRegistrationSerializer(ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        validated_data.pop('password')
+        password = validated_data.pop('password')
         validated_data.pop('password_confirm')
         profile_data = validated_data.pop('profile')
 
@@ -89,9 +108,9 @@ class UserRegistrationSerializer(ModelSerializer):
             **profile_data,
             user=user
         )
+
+        user.set_password(password)
         user.save()
         profile.save()
 
-        password = validated_data.pop('password', None)
-        user.set_password(raw_password=password)
         return user
