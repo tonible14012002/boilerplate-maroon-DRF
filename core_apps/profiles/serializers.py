@@ -17,7 +17,7 @@ class UserProfileSerializer(ModelSerializer):
 
     total_followers = serializers.SerializerMethodField(method_name="get_total_followers", default="")
     fullname = serializers.SerializerMethodField(method_name='get_fullname')
-    avatar = serializers.ImageField(source="profile.avatar")
+    avatar = serializers.URLField(source="profile.avatar")
     gender = serializers.CharField(source="profile.gender")
     city = serializers.CharField(source="profile.city")
     country = serializers.CharField(source="profile.country")
@@ -70,7 +70,7 @@ class UserRegistrationSerializer(ModelSerializer):
     gender = serializers.CharField(source="profile.gender", required=False)
     city = serializers.CharField(source="profile.city", required=False)
     country = serializers.CharField(source="profile.country", required=False)
-    avatar = serializers.ImageField(source="profile.avatar", required=False)
+    avatar = serializers.URLField(source="profile.avatar", required=False)
 
     class Meta:
         PROFILE_FIELDS = ['gender', 'country', 'city', 'avatar']

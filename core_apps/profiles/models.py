@@ -13,12 +13,12 @@ class Profile(TimeStampedModel):
         OTHER = ('OTHER', 'Other')
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
-    avatar = models.ImageField(default='/default-avatar.png')
+    avatar = models.URLField(default='')
     gender = models.CharField(choices=GENDER.choices, max_length=20, default=GENDER.OTHER)
     country = CountryField(null=False, default="VN")
     followers = models.ManyToManyField("self", related_name='following', symmetrical=False)
     city = models.CharField(max_length=200, default="Ho Chi Minh")
-    _nickname = models.CharField(max_length=100, default='', unique=True)
+    _nickname = models.CharField(max_length=100, null=True, unique=True)
 
     class Meta:
         db_table = "profile"
