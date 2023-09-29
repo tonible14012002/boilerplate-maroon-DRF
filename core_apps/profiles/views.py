@@ -8,7 +8,7 @@ from rest_framework.generics import (
 from .serializers import (
     UserProfileSerializer,
     UserRegistrationSerializer,
-    ProfileSerializer
+    SimpleProfileSerializer
 )
 from .models import Profile
 from django.contrib.auth import get_user_model
@@ -19,7 +19,7 @@ User = get_user_model()
 # Create your views here.
 class ProfileViewSet(ViewSet, ListAPIView):
     queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
+    serializer_class = SimpleProfileSerializer
 
 
 class UserProfileViewset(ViewSet, RetrieveAPIView, UpdateAPIView, ListAPIView):

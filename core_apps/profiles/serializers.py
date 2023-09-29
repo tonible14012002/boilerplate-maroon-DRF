@@ -7,21 +7,24 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-class ProfileSerializer(ModelSerializer):
+class SimpleProfileSerializer(ModelSerializer):
+    avatar = serializers.URLField(source='profile.avatar')
+    nickname = serializers.CharField(source='profile.nickname')
+
     class Meta:
-        model = Profile
-        fields = "__all__"
+        model = User
+        fields = ['id', 'avatar', 'nickname', 'first_name', 'last_name']
 
 
 class UserProfileSerializer(ModelSerializer):
 
-    total_followers = serializers.SerializerMethodField(method_name="get_total_followers", default="")
+    total_followers = serializers.SerializerMethodField(method_name='get_total_followers', default='')
     fullname = serializers.SerializerMethodField(method_name='get_fullname')
-    avatar = serializers.URLField(source="profile.avatar")
-    gender = serializers.CharField(source="profile.gender")
-    city = serializers.CharField(source="profile.city")
-    country = serializers.CharField(source="profile.country")
-    nickname = serializers.CharField(source="profile.nickname")
+    avatar = serializers.URLField(source='profile.avatar')
+    gender = serializers.CharField(source='profile.gender')
+    city = serializers.CharField(source='profile.city')
+    country = serializers.CharField(source='profile.country')
+    nickname = serializers.CharField(source='profile.nickname')
 
     class Meta:
         PROFILE_FIELDS = ['gender', 'country', 'city', 'avatar', 'nickname']
@@ -39,7 +42,7 @@ class UserProfileSerializer(ModelSerializer):
         return instance.get_full_name()
 
     def to_representation(self, instance):
-        if not hasattr(instance, "profile"):
+        if not hasattr(instance, 'profile'):
             Profile.objects.create(user=instance)
 
         return super().to_representation(instance)
@@ -67,10 +70,10 @@ class UserProfileSerializer(ModelSerializer):
 class UserRegistrationSerializer(ModelSerializer):
     password = serializers.CharField(write_only=True)
     password_confirm = serializers.CharField(write_only=True)
-    gender = serializers.CharField(source="profile.gender", required=False)
-    city = serializers.CharField(source="profile.city", required=False)
-    country = serializers.CharField(source="profile.country", required=False)
-    avatar = serializers.URLField(source="profile.avatar", required=False)
+    gender = serializers.CharField(source='profile.gender', required=False)
+    city = serializers.CharField(source='profile.city', required=False)
+    country = serializers.CharField(source='profile.country', required=False)
+    avatar = serializers.URLField(source='profile.avatar', required=False)
 
     class Meta:
         PROFILE_FIELDS = ['gender', 'country', 'city', 'avatar']
@@ -94,13 +97,13 @@ class UserRegistrationSerializer(ModelSerializer):
         password = attrs.get('password')
         password_confirm = attrs.get('password_confirm')
         if password != password_confirm:
-            raise ValidationError("Confirm password incorrect")
+            raise ValidationError('Confirm password incorrect')
         return attrs
 
     def create(self, validated_data):
         password = validated_data.pop('password')
         validated_data.pop('password_confirm')
-        profile_data = validated_data.pop('profile')
+        profile_data = validated_data.pop('profile', {})
 
         user = User.objects.create(
             **validated_data

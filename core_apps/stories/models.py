@@ -32,7 +32,7 @@ class UserStory(TimeStampedModel):
         related_name='excluded_stories'
     )
 
-    media_url = models.URLField()
+    media_url = models.URLField(max_length=2000)
     live_time = models.PositiveSmallIntegerField(
         default=settings.APPS_CONFIG['STORIES']['default_live_time']
     )
@@ -61,7 +61,7 @@ class UserStory(TimeStampedModel):
     def allow_user(self, user):
         self.excluded_users.remove(user)
 
-    def all_viewers(self):
+    def all_views(self):
         return self.story_views.all()
 
     def is_viewed_by(self, user):

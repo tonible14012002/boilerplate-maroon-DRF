@@ -13,7 +13,7 @@ class Profile(TimeStampedModel):
         OTHER = ('OTHER', 'Other')
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
-    avatar = models.URLField(default='')
+    avatar = models.URLField(default='', max_length=2000)
     gender = models.CharField(choices=GENDER.choices, max_length=20, default=GENDER.OTHER)
     country = CountryField(null=False, default="VN")
     followers = models.ManyToManyField("self", related_name='following', symmetrical=False)

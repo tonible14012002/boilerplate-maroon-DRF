@@ -18,7 +18,7 @@ body: {
 }
 ```
 
-#### Profile Apis
+#### User Profile Apis
 - `GET` /user-services/profile/:id
     ```typescript
     response: {
@@ -34,10 +34,28 @@ body: {
             first_name: string
             last_name: string
             email: string
-            dob: any
+            dob: string // date string
             phone: string
             total_followers: number
             fullname: string
+        }
+    }
+    ```
+- `PATCH` /user-services/profile/:id
+    ```typescript
+    body: {
+        pageable: null
+        status_code: number
+        data: {
+            gender?: string
+            country?: string
+            city?: string
+            avatar?: string
+            first_name?: string
+            last_name?: string
+            email?: string
+            dob?: string // date string
+            phone?: string
         }
     }
     ```
