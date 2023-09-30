@@ -1,10 +1,16 @@
 from django.db import models
 from django.conf import settings
 from core_apps.common.models import TimeStampedModel
+from django.utils import timezone
+from datetime import timedelta
 
 
 # Create your models here.
 class UserStory(TimeStampedModel):
+    class StoryStatus(models.TextChoices):
+        New = ('NEW', 'New')
+        Expired = ('EXPIRED', 'Expired')
+
     class PrivacyMode(models.TextChoices):
         Private = ('PRIVATE', 'Private')
         Public = ('PUBLIC', 'Public')
@@ -20,6 +26,11 @@ class UserStory(TimeStampedModel):
         Long = 15
         ExtraLong = 30
 
+    class LiveTimeOption(models.IntegerChoices):
+        HalfDay = 4300
+        OneDay = 8600
+        TwoDay = 17200
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=False,
@@ -34,9 +45,15 @@ class UserStory(TimeStampedModel):
 
     media_url = models.URLField(max_length=2000)
     live_time = models.PositiveSmallIntegerField(
-        default=settings.APPS_CONFIG['STORIES']['default_live_time']
+        choices=LiveTimeOption.choices,
+        default=LiveTimeOption.OneDay
     )
-    expired = models.BooleanField(default=False)
+    expire_date = models.DateTimeField(null=True)
+    status = models.CharField(
+        choices=StoryStatus.choices,
+        default=StoryStatus.New,
+        max_length=50
+    )
     duration = models.PositiveSmallIntegerField(
         choices=MediaDuration.choices,
         default=MediaDuration.Medium
@@ -66,6 +83,12 @@ class UserStory(TimeStampedModel):
 
     def is_viewed_by(self, user):
         return self.story_views.filter(user=user).exist()
+
+    def save(self, *args, **kwargs):
+        if not (self.id and self.expire_date):
+            livetime = self.live_time if self.live_time else self.LiveTimeOption.OneDay
+            self.expire_date = timezone.now() + timedelta(seconds=livetime)
+        return super(UserStory, self).save(*args, **kwargs)
 
 
 class StoryView(models.Model):

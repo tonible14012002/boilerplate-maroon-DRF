@@ -17,6 +17,7 @@ class StoryViewSerializer(ModelSerializer):
 
 class UserStoryDetailSerializer(ModelSerializer):
     """
+    Story serializer for archieved story
     Must pass in request context for `.create()`
     """
 
@@ -32,13 +33,13 @@ class UserStoryDetailSerializer(ModelSerializer):
         model = UserStory
         fields = [
             'id', 'duration', 'excluded_users', 'media_url', 'created_at', 'updated_at',
-            'live_time', 'expired', 'privacy_mode', 'views', 'users_to_exclude'
+            'live_time', 'status', 'privacy_mode', 'views', 'users_to_exclude', 'expire_date'
         ]
-        read_only_fields = ['live_time', 'expired', 'views']
+        read_only_fields = ['status', 'views', 'expire_time']
         extra_kwargs = {
             'excluded_users': {'required': False}
         }
-        create_only_fields = ['duration', 'media_url']
+        create_only_fields = ['duration', 'media_url', 'live_time']
 
     def get_fields(self):
         fields = super().get_fields()
@@ -76,3 +77,17 @@ class UserStoryDetailSerializer(ModelSerializer):
         story.save()
 
         return story
+
+
+class FriendStorySerializer(ModelSerializer):
+    """
+    Story serializer for friend viewpoint
+    """
+    owner = SimpleProfileSerializer(source="user", read_only=True)
+
+    class Meta:
+        model = UserStory
+        fields = [
+            'id', 'duration', 'media_url', 'created_at',
+            'status', 'privacy_mode', 'expire_date'
+        ]

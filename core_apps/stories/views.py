@@ -1,4 +1,11 @@
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import (
+    ModelViewSet,
+    ViewSet
+)
+from rest_framework.generics import (
+    ListAPIView,
+    RetrieveAPIView,
+)
 from .models import (
     UserStory,
 )
@@ -12,7 +19,7 @@ from rest_framework.permissions import IsAuthenticated
 
 
 # Create your views here.
-class UserStoryViewset(ModelViewSet):
+class UserAchievedStoryViewset(ModelViewSet):
     permission_classes = [IsAuthenticated, IsStoryOwner]
     serializer_class = UserStoryDetailSerializer
     lookup_field = 'id'
@@ -23,3 +30,7 @@ class UserStoryViewset(ModelViewSet):
 
     def get_serializer_context(self):
         return super().get_serializer_context()
+
+
+class FriendStoryViewset(ViewSet, ListAPIView, RetrieveAPIView):
+    pass

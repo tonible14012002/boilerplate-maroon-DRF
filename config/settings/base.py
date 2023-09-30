@@ -176,11 +176,3 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = 'accounts.MyUser'
 
 APPEND_SLASH = False
-
-APPS_CONFIG = {
-    "STORIES": {
-        "default_live_time": 86400,  # 1 hour
-        "max_live_time": 86400,
-
-    }
-}
