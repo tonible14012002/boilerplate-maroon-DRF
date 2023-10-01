@@ -52,6 +52,7 @@ class UserProfileSerializer(ModelSerializer):
         return super().to_representation(instance)
 
     def update(self, instance, validated_data):
+        # FIXME: Move Logic to model Manager
         user = instance
 
         if not hasattr(user, 'profile'):
@@ -105,6 +106,7 @@ class UserRegistrationSerializer(ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        # FIXME: Move logic to model manager
         password = validated_data.pop('password')
         validated_data.pop('password_confirm')
         profile_data = validated_data.pop('profile', {})

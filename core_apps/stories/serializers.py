@@ -57,6 +57,7 @@ class UserStoryDetailSerializer(ModelSerializer):
         return data
 
     def create(self, validated_data):
+        # FIXME: Move logic to model Manager
         user_ids_to_exclude = validated_data.pop('users_to_exclude', [])
         user = self.context['request'].user
         story = UserStory.objects.create(
@@ -70,6 +71,7 @@ class UserStoryDetailSerializer(ModelSerializer):
         return story
 
     def update(self, instance, validated_data):
+        # FIXME: Move logic to model Manager
         story = instance
         user_ids_to_exclude = validated_data.pop('users_to_exclude', [])
         users = User.objects.filter(id__in=user_ids_to_exclude)
