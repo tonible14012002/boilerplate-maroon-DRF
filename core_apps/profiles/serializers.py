@@ -19,6 +19,7 @@ class SimpleProfileSerializer(ModelSerializer):
 class UserProfileSerializer(ModelSerializer):
 
     total_followers = serializers.SerializerMethodField(method_name='get_total_followers', default='')
+    total_followings = serializers.SerializerMethodField(method_name='get_total_followings', default='')
     fullname = serializers.SerializerMethodField(method_name='get_fullname')
     avatar = serializers.URLField(source='profile.avatar')
     gender = serializers.CharField(source='profile.gender')
@@ -33,10 +34,13 @@ class UserProfileSerializer(ModelSerializer):
             'dob', 'phone'
         ]
         model = User
-        fields = PROFILE_FIELDS + USER_FIELDS + ['total_followers', 'fullname']
+        fields = PROFILE_FIELDS + USER_FIELDS + ['total_followers', 'fullname', 'total_followings']
+
+    def get_total_followings(self, instance):
+        return instance.followings.count()
 
     def get_total_followers(self, instance):
-        return instance.profile.followers.count()
+        return instance.followers.count()
 
     def get_fullname(self, instance):
         return instance.get_full_name()
@@ -118,3 +122,21 @@ class UserRegistrationSerializer(ModelSerializer):
         profile.save()
 
         return user
+
+
+class UserFollowerSerializer():
+    followers = SimpleProfileSerializer(
+        many=True,
+        read_only=True
+    )
+    include_fields = ['followers']
+
+
+class UserFollowingSerializer():
+    followings = SimpleProfileSerializer(
+        many=True,
+        read_only=True
+    )
+
+    class Meta:
+        fields = ['followings']

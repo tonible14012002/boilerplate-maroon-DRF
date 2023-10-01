@@ -16,21 +16,11 @@ class Profile(TimeStampedModel):
     avatar = models.URLField(default='', max_length=2000)
     gender = models.CharField(choices=GENDER.choices, max_length=20, default=GENDER.OTHER)
     country = CountryField(null=False, default="VN")
-    followers = models.ManyToManyField("self", related_name='following', symmetrical=False)
     city = models.CharField(max_length=200, default="Ho Chi Minh")
     _nickname = models.CharField(max_length=100, null=True, unique=True)
 
     class Meta:
         db_table = "profile"
-
-    def follow(self, profile):
-        self.followers.add(profile)
-
-    def unfollow(self, profile):
-        self.followers.remove(profile)
-
-    def check_is_follow(self, profile):
-        return self.followers.filter(pkid=profile.pkid).exists()
 
     @property
     def nickname(self):
