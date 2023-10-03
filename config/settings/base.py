@@ -31,7 +31,7 @@ LOCAL_APPS = [
     'core_apps.jwt_auth',
     'core_apps.schema',
     'core_apps.common',
-    'core_apps.profiles',
+    # 'core_apps.profiles',
     'core_apps.stories'
 ]
 

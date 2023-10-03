@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from .models import UserStory, StoryView
-from core_apps.profiles.serializers import SimpleProfileSerializer
+from core_apps.accounts.serializers import SimpleProfileSerializer
 from django.contrib.auth import get_user_model
 
 User = get_user_model()

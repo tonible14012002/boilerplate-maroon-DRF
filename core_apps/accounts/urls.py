@@ -1,12 +1,13 @@
 from django.urls import include, path
 from rest_framework import routers
 from .views import (
-    UserProfileViewset,
     ProfileRegistrationView,
     FollowUserView,
     UnFollowUserView,
     UserFollowingsView,
-    UserFollowersView
+    UserFollowersView,
+    UserProfileViewset
+
 )
 
 profile_router = routers.DefaultRouter()

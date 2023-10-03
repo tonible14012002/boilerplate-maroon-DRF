@@ -1,7 +1,7 @@
 # Add User Serializer
 from typing import Any, Dict
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
-from core_apps.profiles.serializers import UserProfileSerializer
+from core_apps.accounts.serializers import UserProfileSerializer
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):

@@ -21,7 +21,7 @@ from django.conf import settings
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("user-services/", include("core_apps.profiles.urls")),
+    path("user-services/", include("core_apps.accounts.urls")),
     path("identity-services/", include("core_apps.jwt_auth.urls")),
     path("story-services/", include("core_apps.stories.urls")),
 ]

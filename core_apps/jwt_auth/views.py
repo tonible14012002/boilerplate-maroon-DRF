@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from core_apps.profiles.serializers import UserProfileSerializer
+from core_apps.accounts.serializers import UserProfileSerializer
 
 
 class MyTokenRefreshView(TokenRefreshView):
