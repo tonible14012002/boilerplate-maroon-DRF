@@ -58,23 +58,10 @@ class UserProfileSerializer(ModelSerializer):
         return super().to_representation(instance)
 
     def update(self, instance, validated_data):
-        # FIXME: Move Logic to model Manager
         user = instance
-
-        if not hasattr(user, 'profile'):
-            Profile.objects.create(user=user)
-
         profile_data = validated_data.pop('profile', {})
-
-        if profile_data is not None:
-            profile = user.profile
-            for field, value in profile_data.items():
-                setattr(profile, field, value)
-            profile.save()
-
-        for field, value in validated_data.items():
-            setattr(user, field, value)
-
+        user.update_profile(**profile_data)
+        user.update(**validated_data)
         return user
 
 
@@ -112,23 +99,12 @@ class UserRegistrationSerializer(ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        # FIXME: Move logic to model manager
-        password = validated_data.pop('password')
         validated_data.pop('password_confirm')
         profile_data = validated_data.pop('profile', {})
-
-        user = User.objects.create(
-            **validated_data
+        user = User.manager.create_user(
+            **validated_data,
+            profile=profile_data
         )
-        profile = Profile.objects.create(
-            **profile_data,
-            user=user
-        )
-
-        user.set_password(password)
-        user.save()
-        profile.save()
-
         return user
 
 

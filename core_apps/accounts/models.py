@@ -29,6 +29,21 @@ class MyUser(AbstractUser):
     def check_is_follow(self, user):
         return self.followers.filter(pkid=user.pkid).exists()
 
+    def update_profile(self, **profile_fields):
+        if not hasattr(self, "profile"):
+            self.profile = Profile.objects.create(
+                user=self,
+                **profile_fields
+            )
+        for field, val in profile_fields.items():
+            setattr(self.profile, field, val)
+        self.profile.save()
+
+    def update(self, **field):
+        for field, val in field.items():
+            setattr(self, field, val)
+        self.save()
+
 
 class Profile(TimeStampedModel):
 
