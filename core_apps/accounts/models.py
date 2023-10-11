@@ -4,6 +4,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from core_apps.common.models import TimeStampedModel
 from django_countries.fields import CountryField
 from core_apps.common.models.mixins import UpdateModelFieldMixin
+from django.contrib.auth.hashers import make_password
 from . import enums
 from . import managers
 import uuid
@@ -26,7 +27,7 @@ class MyUser(AbstractUser):
         # NOTE: Use this method for create new user instead of objects.create()
         user = cls.objects.create(
             username=username,
-            password=password,
+            password=make_password(password),
             **extra_fields
         )
         Profile.objects.create(
