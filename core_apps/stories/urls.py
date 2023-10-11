@@ -1,13 +1,14 @@
 from django.urls import path, include
 from rest_framework.routers import SimpleRouter
 from .views import (
-    UserAchievedStoryViewset
+    UserAchievedStoryViewset,
+    FriendStoryViewset
 )
 
 stories_router = SimpleRouter()
-stories_router.register('', UserAchievedStoryViewset, 'stories')
+stories_router.register('archieved', UserAchievedStoryViewset, 'archieved')
+stories_router.register('following', FriendStoryViewset, 'following')
 
 urlpatterns = [
-    path('archieved/', include(stories_router.urls)),
-    # path('stories/', )
+    path('', include(stories_router.urls)),
 ]

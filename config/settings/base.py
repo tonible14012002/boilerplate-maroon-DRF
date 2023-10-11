@@ -23,7 +23,9 @@ THIRD_PARTY_APPS = [
     "drf_yasg",
     "corsheaders",
     "phonenumbers",
-    "phonenumber_field"
+    "phonenumber_field",
+    "django_seed",
+
 ]
 
 LOCAL_APPS = [
@@ -31,8 +33,7 @@ LOCAL_APPS = [
     'core_apps.jwt_auth',
     'core_apps.schema',
     'core_apps.common',
-    # 'core_apps.profiles',
-    'core_apps.stories'
+    'core_apps.stories',
 ]
 
 INSTALLED_APPS = THIRD_PARTY_APPS + DJANGO_APPS + LOCAL_APPS
@@ -176,3 +177,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = 'accounts.MyUser'
 
 APPEND_SLASH = False
+
+# Flow chart
+# Sequence Diagram
+# Documentation
+# Improvement

@@ -1,13 +1,13 @@
 # Add User Serializer
 from typing import Any, Dict
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
-from core_apps.accounts.serializers import UserProfileSerializer
+from core_apps.accounts import serializers
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs: Dict[str, Any]) -> Dict[str, str]:
         data = super().validate(attrs)
-        data['user'] = UserProfileSerializer(self.user).data
+        data['user'] = serializers.ReadUpdateUserProfile(self.user).data
         return data
 
 

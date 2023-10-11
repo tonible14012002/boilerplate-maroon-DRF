@@ -6,11 +6,7 @@ from rest_framework.generics import (
     CreateAPIView,
     GenericAPIView
 )
-from .serializers import (
-    UserProfileSerializer,
-    UserRegistrationSerializer,
-    SimpleProfileSerializer,
-)
+from . import serializers
 from .models import Profile
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAuthenticated
@@ -20,6 +16,8 @@ from rest_framework.status import (
 )
 from django.shortcuts import get_object_or_404
 from core_apps.schema.paginators import MediumSizePagination
+from rest_framework.permissions import SAFE_METHODS
+from .permissions import IsAccountOwner
 
 User = get_user_model()
 
@@ -27,17 +25,22 @@ User = get_user_model()
 # Create your views here.
 class ProfileViewSet(ViewSet, ListAPIView):
     queryset = Profile.objects.all()
-    serializer_class = SimpleProfileSerializer
+    serializer_class = serializers.ReadBasicUserProfile
 
 
 class UserProfileViewset(ViewSet, RetrieveAPIView, UpdateAPIView, ListAPIView):
     queryset = User.objects.all()
-    serializer_class = UserProfileSerializer
+    serializer_class = serializers.ReadUpdateUserProfile
     lookup_field = 'id'
+
+    def get_permissions(self):
+        if self.request.method in SAFE_METHODS:
+            return [IsAuthenticated()]
+        return [IsAccountOwner()]
 
 
 class ProfileRegistrationView(CreateAPIView):
-    serializer_class = UserRegistrationSerializer
+    serializer_class = serializers.RegisterUser
 
 
 class FollowUserView(GenericAPIView):
@@ -63,7 +66,7 @@ class UnFollowUserView(FollowUserView):
 
 class UserFollowersView(ListAPIView):
     pagination_class = MediumSizePagination
-    serializer_class = SimpleProfileSerializer
+    serializer_class = serializers.ReadBasicUserProfile
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -74,7 +77,7 @@ class UserFollowersView(ListAPIView):
 
 class UserFollowingsView(ListAPIView):
     pagination_class = MediumSizePagination
-    serializer_class = SimpleProfileSerializer
+    serializer_class = serializers.ReadBasicUserProfile
 
     def get_queryset(self):
         view_user = get_object_or_404(User, id=self.kwargs.get('uid', ''))

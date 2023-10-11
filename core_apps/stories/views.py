@@ -9,9 +9,7 @@ from rest_framework.generics import (
 from .models import (
     UserStory,
 )
-from .serializers import (
-    UserStoryDetailSerializer,
-)
+from . import serializers
 from .permissions import (
     IsStoryOwner
 )
@@ -21,7 +19,7 @@ from rest_framework.permissions import IsAuthenticated
 # Create your views here.
 class UserAchievedStoryViewset(ModelViewSet):
     permission_classes = [IsAuthenticated, IsStoryOwner]
-    serializer_class = UserStoryDetailSerializer
+    serializer_class = serializers.CRUStoryDetail
     lookup_field = 'id'
 
     def get_queryset(self):
@@ -33,4 +31,9 @@ class UserAchievedStoryViewset(ModelViewSet):
 
 
 class FriendStoryViewset(ViewSet, ListAPIView, RetrieveAPIView):
-    pass
+    permission_classes = [IsAuthenticated]
+    serializer_class = serializers.RFriendStory
+
+    def get_queryset(self):
+        user = self.request.user
+        return UserStory.is_active.get_friend_stories(user=user)

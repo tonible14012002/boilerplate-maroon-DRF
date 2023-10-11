@@ -2,18 +2,13 @@ from django.contrib.auth import get_user_model
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from rest_framework.validators import ValidationError
-from .models import Profile
+from . import models
 
-User = get_user_model()
-
-
-class UserSerializer(ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'dob', 'phone']
+User: models.MyUser = get_user_model()
+Profile = models.Profile
 
 
-class SimpleProfileSerializer(ModelSerializer):
+class ReadBasicUserProfile(ModelSerializer):
     avatar = serializers.URLField(source='profile.avatar')
     nickname = serializers.CharField(source='profile.nickname')
 
@@ -22,50 +17,53 @@ class SimpleProfileSerializer(ModelSerializer):
         fields = ['id', 'avatar', 'nickname', 'first_name', 'last_name']
 
 
-class UserProfileSerializer(ModelSerializer):
+class ReadUpdateUserProfile(ModelSerializer):
 
-    total_followers = serializers.SerializerMethodField(method_name='get_total_followers', default='')
-    total_followings = serializers.SerializerMethodField(method_name='get_total_followings', default='')
-    fullname = serializers.SerializerMethodField(method_name='get_fullname')
-    avatar = serializers.URLField(source='profile.avatar')
-    gender = serializers.CharField(source='profile.gender')
-    city = serializers.CharField(source='profile.city')
-    country = serializers.CharField(source='profile.country')
-    nickname = serializers.CharField(source='profile.nickname')
+    # total_followers = serializers.IntegerField(source='total_followers', read_only=True)
+    # total_followings = serializers.IntegerField(source='total_followings', read_only=True)
+    fullname = serializers.CharField(source='get_fullname', read_only=True)
+
+    # Profile fields -> data['profile']
+    avatar = serializers.URLField(source='profile.avatar', default="")
+    gender = serializers.CharField(source='profile.gender', default="")
+    city = serializers.CharField(source='profile.city', default="")
+    country = serializers.CharField(source='profile.country', default="")
+    nickname = serializers.CharField(source='profile.nickname', default="")
 
     class Meta:
-        PROFILE_FIELDS = ['gender', 'country', 'city', 'avatar', 'nickname']
         USER_FIELDS = [
-            'id', 'username', 'first_name', 'last_name', 'email', 'dob',
-            'dob', 'phone'
+            'id', 'username', 'first_name', 'last_name', 'email', 'dob', 'phone'
         ]
+        USER_EXTRA_FIELDS = ['total_followers', 'fullname', 'total_followings']
+        PROFILE_FIELDS = ['avatar', 'gender', 'city', 'country', 'nickname']
+
         model = User
-        fields = PROFILE_FIELDS + USER_FIELDS + ['total_followers', 'fullname', 'total_followings']
+        fields = PROFILE_FIELDS + USER_FIELDS + USER_EXTRA_FIELDS
+        read_only_fields = ['username', 'email', 'total_followers', 'total_followings']
 
-    def get_total_followings(self, instance):
-        return instance.followings.count()
-
-    def get_total_followers(self, instance):
-        return instance.followers.count()
-
-    def get_fullname(self, instance):
-        return instance.get_full_name()
-
-    def to_representation(self, instance):
-        if not hasattr(instance, 'profile'):
-            Profile.objects.create(user=instance)
-
-        return super().to_representation(instance)
-
-    def update(self, instance, validated_data):
-        user = instance
+    def update(self, user: models.MyUser, validated_data: dict):
+        profile: models.Profile = user.profile
         profile_data = validated_data.pop('profile', {})
-        user.update_profile(**profile_data)
-        user.update(**validated_data)
+        user_data = validated_data
+
+        profile.update_field(
+            city=profile_data.get('city', None),
+            nickname=profile_data.get('nickname', None),
+            gender=profile_data.get('gender', None),
+            avatar=profile_data.get('avatar', None),
+        )
+
+        user.update_field(
+            first_name=user_data.get('first_name', None),
+            last_name=user_data.get('last_name', None),
+            dob=user_data.get('dob', None),
+            phone=user_data.get('phone', None),
+        )
+
         return user
 
 
-class UserRegistrationSerializer(ModelSerializer):
+class RegisterUser(ModelSerializer):
     password = serializers.CharField(write_only=True)
     password_confirm = serializers.CharField(write_only=True)
     gender = serializers.CharField(source='profile.gender', required=False)
@@ -75,10 +73,7 @@ class UserRegistrationSerializer(ModelSerializer):
 
     class Meta:
         PROFILE_FIELDS = ['gender', 'country', 'city', 'avatar']
-        USER_FIELDS = [
-            'id', 'username', 'first_name', 'last_name', 'email', 'dob',
-            'dob', 'phone',
-        ]
+        USER_FIELDS = ['id', 'username', 'first_name', 'last_name', 'email', 'dob', 'phone']
 
         model = User
         fields = USER_FIELDS + PROFILE_FIELDS + ['password_confirm', 'password']
@@ -101,26 +96,28 @@ class UserRegistrationSerializer(ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         profile_data = validated_data.pop('profile', {})
-        user = User.manager.create_user(
-            **validated_data,
-            profile=profile_data
+        user = User.create_register(
+            username=validated_data.pop('username'),
+            password=validated_data.pop('password'),
+            extra_fields=validated_data,
+            profile_fields=profile_data
         )
         return user
 
 
-class UserFollowerSerializer():
-    followers = SimpleProfileSerializer(
-        many=True,
-        read_only=True
-    )
-    include_fields = ['followers']
+# class ReadUserFollower():
+#     followers = ReadBasicUserProfile(
+#         many=True,
+#         read_only=True
+#     )
+#     include_fields = ['followers']
 
 
-class UserFollowingSerializer():
-    followings = SimpleProfileSerializer(
-        many=True,
-        read_only=True
-    )
+# class ReadUserFollowing():
+#     followings = ReadBasicUserProfile(
+#         many=True,
+#         read_only=True
+#     )
 
-    class Meta:
-        fields = ['followings']
+#     class Meta:
+#         fields = ['followings']
