@@ -17,7 +17,7 @@ from rest_framework.permissions import IsAuthenticated
 
 
 # Create your views here.
-class UserAchievedStoryViewset(ModelViewSet):
+class UserAchievedStory(ModelViewSet):
     permission_classes = [IsAuthenticated, IsStoryOwner]
     serializer_class = serializers.CRUStoryDetail
     lookup_field = 'id'
@@ -30,10 +30,10 @@ class UserAchievedStoryViewset(ModelViewSet):
         return super().get_serializer_context()
 
 
-class FriendStoryViewset(ViewSet, ListAPIView, RetrieveAPIView):
+class FollowingStory(ViewSet, ListAPIView, RetrieveAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = serializers.RFriendStory
+    serializer_class = serializers.RFollowingStory
 
     def get_queryset(self):
         user = self.request.user
-        return UserStory.is_active.get_friend_stories(user=user)
+        return UserStory.get_active_from_owners(user.followings.all())

@@ -3,7 +3,7 @@ import environ
 from datetime import timedelta
 
 env = environ.Env()
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Build paths inside the project like this: APP_DIR / 'subdir'.
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Application definition

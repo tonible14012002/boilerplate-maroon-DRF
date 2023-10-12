@@ -80,7 +80,7 @@ class CRUStoryDetail(ModelSerializer):
         return story
 
 
-class RFriendStory(ModelSerializer):
+class RFollowingStory(ModelSerializer):
     """
     Story serializer for friend viewpoint
     """
@@ -90,5 +90,5 @@ class RFriendStory(ModelSerializer):
         model = UserStory
         fields = [
             'id', 'duration', 'media_url', 'created_at',
-            'status', 'privacy_mode', 'expire_date'
+            'status', 'privacy_mode', 'expire_date', 'owner'
         ]

@@ -4,11 +4,18 @@ from core_apps.common.models import TimeStampedModel
 from django.utils import timezone
 from datetime import timedelta
 from core_apps.common.models.mixins import UpdateModelFieldMixin
+from core_apps.accounts import models as account_models
 from . import enums
 from .managers import (
     ExpiredStoryManager,
     ActiveStoryManager
 )
+
+# Logic on single model's instance must use model method
+# Logic on  set of model's instance must use manager method
+# Logic on  set of model's instance with realate model's instance
+# Try put all relate method of a model in manager
+# To interact with other model, use model classmethod
 
 
 # Create your models here.
@@ -57,6 +64,7 @@ class UserStory(TimeStampedModel, UpdateModelFieldMixin):
 
     class Meta:
         db_table = 'story'
+        ordering = ['-updated_at', '-created_at']
 
     # Factories
     @classmethod
@@ -74,8 +82,20 @@ class UserStory(TimeStampedModel, UpdateModelFieldMixin):
     def is_viewed_by(self, user):
         return self.story_views.filter(user=user).exist()
 
+    # Queries
+    @classmethod
+    def get_for_followers(cls):
+        stories = cls.is_active.following_only()
+        return stories
+
+    @classmethod
+    def get_active_from_owners(cls, users: list[account_models.MyUser]):
+        return cls.is_active.filter(
+            user__in=users
+        )
+
     # Mutator
-    def exclude_user(self, user):
+    def exclude_user(self, user: account_models.MyUser):
         self.excluded_users.add(user)
 
     def allow_user(self, user):
@@ -94,3 +114,4 @@ class StoryView(models.Model):
     class Meta:
         db_table = 'story_viewer'
         unique_together = ['user', 'story']
+        ordering = ['-viewed_at']
