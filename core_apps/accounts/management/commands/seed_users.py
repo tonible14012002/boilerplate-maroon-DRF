@@ -26,7 +26,7 @@ class Command(management.BaseCommand):
     def handle(self, *args, **options):
         count = options['count']
 
-        for i in range(count):
+        for _ in range(count):
             username = f'user_{uuid.uuid1()}'
             email = f'{username}@example.com'
             password = '123456'  # You can set the password as needed
@@ -42,6 +42,7 @@ class Command(management.BaseCommand):
                     'city': random.choice(self.city_names),
                     'avatar': '',
                     'gender': random.choice(enums.Gender.choices)[1]
-                }
+                },
+                is_test=True
             )
             self.stdout.write(self.style.SUCCESS(f'User {username} created'))

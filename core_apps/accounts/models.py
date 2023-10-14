@@ -16,15 +16,22 @@ class MyUser(AbstractUser):
     dob = models.DateField(null=True)
     phone = PhoneNumberField()
     followers = models.ManyToManyField("self", related_name='followings', symmetrical=False)
+    is_test = models.BooleanField(default=False)
+
     objects = managers.UserManager()
+    tests = managers.TestUserManager()
 
     REQUIRED_FIELDS = ["email", "last_name", "first_name"]
 
     # Factory
     @classmethod
-    def create_register(cls, *, username: str, password: str, extra_fields: dict, profile_fields: dict):
+    def create_register(cls, *, username: str, password: str, extra_fields: dict, profile_fields: dict, is_test=False):
         # NOTE: Use this method for create new user instead of objects.create()
-        user = cls.objects.create(
+        if is_test:
+            factory = cls.tests.create
+        else:
+            factory = cls.objects.create
+        user = factory(
             username=username,
             password=password,
             **extra_fields
@@ -51,6 +58,8 @@ class MyUser(AbstractUser):
     @property
     def total_followings(self):
         return self.followings.count()
+
+    # Queries
 
     # Mutators
     def update_field(self, *, first_name, last_name, dob, phone):
