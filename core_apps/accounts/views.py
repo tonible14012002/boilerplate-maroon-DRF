@@ -15,7 +15,7 @@ from rest_framework.status import (
     HTTP_200_OK
 )
 from django.shortcuts import get_object_or_404
-from core_apps.schema.paginators import MediumSizePagination
+from core_apps.schema import paginators
 from rest_framework.permissions import SAFE_METHODS
 from .permissions import IsAccountOwner
 
@@ -39,11 +39,11 @@ class UserProfileViewset(ViewSet, RetrieveAPIView, UpdateAPIView, ListAPIView):
         return [IsAccountOwner()]
 
 
-class ProfileRegistrationView(CreateAPIView):
+class ProfileRegistration(CreateAPIView):
     serializer_class = serializers.RegisterUser
 
 
-class FollowUserView(GenericAPIView):
+class FollowUser(GenericAPIView):
     queryset = User.objects.all()
     lookup_url_kwarg = 'uid'
     lookup_field = 'id'
@@ -56,7 +56,7 @@ class FollowUserView(GenericAPIView):
         return Response({'success': True}, status=HTTP_200_OK)
 
 
-class UnFollowUserView(FollowUserView):
+class UnFollowUser(FollowUser):
     def post(self, request, *args, **kwargs):
         user = request.user
         unfollow_user = self.get_object()
@@ -64,8 +64,8 @@ class UnFollowUserView(FollowUserView):
         return Response({'success': True})
 
 
-class UserFollowersView(ListAPIView):
-    pagination_class = MediumSizePagination
+class UserFollowers(ListAPIView):
+    pagination_class = paginators.SmallSizePagination
     serializer_class = serializers.ReadBasicUserProfile
     permission_classes = [IsAuthenticated]
 
@@ -75,8 +75,8 @@ class UserFollowersView(ListAPIView):
         return users
 
 
-class UserFollowingsView(ListAPIView):
-    pagination_class = MediumSizePagination
+class UserFollowings(ListAPIView):
+    pagination_class = paginators.SmallSizePagination
     serializer_class = serializers.ReadBasicUserProfile
 
     def get_queryset(self):

@@ -89,10 +89,8 @@ class UserStory(TimeStampedModel, UpdateModelFieldMixin):
         return stories
 
     @classmethod
-    def get_active_from_owners(cls, users: list[account_models.MyUser]):
-        return cls.is_active.filter(
-            user__in=users
-        )
+    def get_following_only(cls, user):
+        return cls.is_active.following_only(user)
 
     # Mutator
     def exclude_user(self, user: account_models.MyUser):

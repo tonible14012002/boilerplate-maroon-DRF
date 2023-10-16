@@ -17,5 +17,5 @@ class ActiveStoryManager(Manager):
 
     def following_only(self, user) -> QuerySet:
         return self.get_queryset().filter(
-            user__followings=user,
+            user__followers=user,
         )

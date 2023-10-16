@@ -103,21 +103,3 @@ class RegisterUser(ModelSerializer):
             profile_fields=profile_data
         )
         return user
-
-
-# class ReadUserFollower():
-#     followers = ReadBasicUserProfile(
-#         many=True,
-#         read_only=True
-#     )
-#     include_fields = ['followers']
-
-
-# class ReadUserFollowing():
-#     followings = ReadBasicUserProfile(
-#         many=True,
-#         read_only=True
-#     )
-
-#     class Meta:
-#         fields = ['followings']

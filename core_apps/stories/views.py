@@ -6,9 +6,7 @@ from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
 )
-from .models import (
-    UserStory,
-)
+from . import models
 from . import serializers
 from .permissions import (
     IsStoryOwner
@@ -24,7 +22,7 @@ class UserAchievedStory(ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return UserStory.objects.filter(user=user)
+        return models.UserStory.objects.filter(user=user)
 
     def get_serializer_context(self):
         return super().get_serializer_context()
@@ -36,4 +34,10 @@ class FollowingStory(ViewSet, ListAPIView, RetrieveAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return UserStory.get_active_from_owners(user.followings.all())
+        return models.UserStory.get_following_only(user)
+
+
+class Story(ViewSet, ListAPIView):
+    # NOTE: For testing only
+    queryset = models.UserStory.is_active.all()
+    serializer_class = serializers.RFollowingStory
