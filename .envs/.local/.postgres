@@ -1,0 +1,14 @@
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=boilerplate
+POSTGRES_USER=maroon
+POSTGRES_PASSWORD=71102Tony
+DATABASE_URL=postgres://maroon:71102Tony@postgres:5432/boilerplate
+
+# FIXME: Using 3rd postgresdb
+# POSTGRES_HOST=168.220.90.20
+# POSTGRES_PORT=5432
+# POSTGRES_PASSWORD=zdRanjQAQXJhN3l
+# POSTGRES_DB=repmgr
+# POSTGRES_USER=postgres
+# DATABASE_URL=postgres://postgres:zdRanjQAQXJhN3l@168.220.90.20:5432/repmgr
