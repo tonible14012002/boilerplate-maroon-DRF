@@ -4,8 +4,8 @@
 
 ### Project Structure
 
-| -- | -- |
 | Backend | Web |
+| --- | --- |
 | ... | ... |
 
 ### With Docker (recommend)
