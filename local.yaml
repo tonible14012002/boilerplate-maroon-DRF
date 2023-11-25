@@ -9,8 +9,8 @@ services:
       - .:/app:z # map the file in host to container
       - static_volume:/app/staticfiles
       - media_volume:/app/mediafiles
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     env_file:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
@@ -24,7 +24,7 @@ services:
   # FIXME: Using 3rd provider postgres db
   postgres:
     build:
-      context: .
+      context:  .
       dockerfile: ./docker/local/postgres/Dockerfile
     ports:
       - "5432:5432"
@@ -35,6 +35,21 @@ services:
       - ./.envs/.local/.postgres
     networks:
       - instagram-api
+  nginx:
+    restart: always
+    depends_on:
+      - api
+    volumes: 
+      - static_volume:/app/staticfiles
+      - static_volume:/app/mediafiles
+    build:
+      context: ./docker/local/nginx
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    networks:
+      - instagram-api
+
 
 networks:
   instagram-api:

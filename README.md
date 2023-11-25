@@ -3,10 +3,15 @@
 ## Getting Started
 
 ### Project Structure
-
+#### Production
 | Backend | Web |
 | --- | --- |
 | ... | ... |
+
+### Local Development
+| Backend | Web |
+| --- | --- |
+| [localhost:8080](http://localhost:8080/)  | --- |
 
 ### With Docker
 ```shell
