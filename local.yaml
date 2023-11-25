@@ -20,7 +20,7 @@ services:
       # - mailhog
     command: /start.sh
     networks:
-      - boilerplate-api
+      - instagram-api
   # FIXME: Using 3rd provider postgres db
   postgres:
     build:
@@ -34,10 +34,10 @@ services:
     env_file:
       - ./.envs/.local/.postgres
     networks:
-      - boilerplate-api
+      - instagram-api
 
 networks:
-  boilerplate-api:
+  instagram-api:
     driver: bridge
 
 volumes:

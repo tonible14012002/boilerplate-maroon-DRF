@@ -4,6 +4,7 @@ from django.core.management.base import CommandParser
 from django.contrib import auth
 from ... import enums
 from ... import models
+import json
 import random
 
 User = auth.get_user_model()
@@ -22,6 +23,22 @@ class Command(management.BaseCommand):
         if not random_users.count():
             self.stdout.write(self.style.ERROR('No test users founded, please seed users first'))
             return
+
+        story_schema = {
+            'user': '...random-user...',
+            'privacy_mode': 'Public',
+            'media_type': 'IMAGE',
+            'media_url': '',
+            'live_time': 86400,
+            'duration': 'randome in set (10, 15, 30)'
+        }
+
+        self.stdout.write(self.style.WARNING(
+                f'''Seed stories will be own by random users created using \'seed_users\' cmd.\n
+                 The schema for stories is following:
+                {json.dumps(story_schema, indent=2)}''',
+            ))
+        self.stdout.write(self.style.WARNING('Seeding stories...'))
 
         for _ in range(total_stories):
             user = random.choice(random_users)

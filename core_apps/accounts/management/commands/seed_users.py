@@ -25,6 +25,7 @@ class Command(management.BaseCommand):
 
     def handle(self, *args, **options):
         count = options['count']
+        self.stdout.write(self.style.WARNING('Password will be set to \'123456\'.Seeding users...'))
 
         for _ in range(count):
             username = f'user_{uuid.uuid1()}'
