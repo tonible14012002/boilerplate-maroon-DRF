@@ -1,4 +1,4 @@
-## DJANGO_SIMPLE_BOILERPLATE
+## Instagram Stories Clone
 
 ## Getting Started
 
@@ -8,10 +8,14 @@
 | --- | --- |
 | ... | ... |
 
-### With Docker (recommend)
-
+### With Docker
 ```shell
 docker compose -f local.yaml up --build -d --remove-orphans
+```
+Or using makefile
+```shell
+make build # Build container
+make down # Shutdown the container
 ```
 
 ### Local Installation
@@ -53,3 +57,23 @@ python manage.py collectstatic --no-input
 ```shell
 python manage.py runserver 0.0.0.0:8000
 ```
+
+## Development
+#### Seed Data
+- Seed users instance
+```shell
+make seed_users count=20
+```
+- Seed users' relationships
+```shell
+make seed_relationships count=50
+```
+- Seed stories
+```shell
+make seed_stories count=50
+```
+
+For more commands -> [Makefile](./makefile)
+
+## Contribution
+If you have suggestions for improvements or spot any issues with the project, feel free to submit an issue or pull request to this [repo](https://github.com/tonible14012002/Instagram-Stories) 
