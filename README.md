@@ -14,6 +14,11 @@
 | [localhost:8080](http://localhost:8080/)  | --- |
 
 ### With Docker
+1. Edit file .envs/.rabbitmq to update rabbitmq ip *RabbitMq use machine ip, localhost is not allowed*
+```
+CELERY_BROKER=amqp://guest:guest@{replace_current_machine_ip}:5672/
+```
+2. Build system
 ```shell
 docker compose -f local.yaml up --build -d --remove-orphans
 ```

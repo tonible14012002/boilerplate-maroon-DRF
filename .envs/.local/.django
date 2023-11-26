@@ -1,3 +1,11 @@
 DJANGO_DEBUG=True
 DJANGO_SECRET_KEY=aspdkjpskdapk220i1-2dkowid0-is9ida9w0i120d102d1wd==-0dkpq-i22
 BUILD_ENVIRONMENT=local
+
+RABBITMQ_USER=guest
+RABBITMQ_PASSWORD=guest
+
+# Edit rabbitmq host to local machine ip when run localy
+CELERY_BROKER=amqp://guest:guest@192.168.150.187:5672/
+CELERY_FLOWER_USER=admin
+CElERY_FLOWER_PASSWORD=123456
