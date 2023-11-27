@@ -2,3 +2,4 @@ RABBITMQ_PID_FILE=1212
 RABBITMQ_USER=admin
 RABBITMQ_PASSWORD=123456
 RABBITMQ_PID_FILE=/var/lib/rabbitmq/mnesia/rabbitmq
+BROKER_URL=amqp://guest:guest@rabbitmq:5672/
