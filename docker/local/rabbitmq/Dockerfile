@@ -1,4 +1,4 @@
-FROM rabbitmq
+FROM rabbitmq:3-management
 
 # Define environment variables.
 COPY ./docker/local/rabbitmq/start.sh /start.sh
