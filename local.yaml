@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3.9"
 
 services:
   api:
@@ -19,11 +19,10 @@ services:
     depends_on:
       - postgres
       # - mailhog
-    command: /start.sh
+    command:  /bin/bash -c "ls -la && /start.sh"
     networks:
       - instagram-api
 
-  # FIXME: Using 3rd provider postgres db
   postgres:
     build:
       context: .
@@ -87,25 +86,18 @@ services:
     networks:
       - instagram-api
 
-  flower:
-    build:
-      context: .
-      dockerfile: ./docker/local/django/Dockerfile
-    command: /start-flower.sh
+  # CASSANDRA
+  cassandra:
+    image: cassandra:latest
     volumes:
-      - flower_data:/data
-    env_file:
-      - ./.envs/.local/.django
-      - ./.envs/.local/.postgres
-      - ./.envs/.local/.rabbitmq
+      - local_cassandra_data:/var/lib/cassandra/data
     ports:
-      - "5555:5555"
-    depends_on:
-      - rabbitmq_server
-      - postgres
-      - celery_worker
+      - "9042:9042"
+    expose:
+      - "9042"
     networks:
       - instagram-api
+
 
 networks:
   instagram-api:
@@ -114,7 +106,6 @@ networks:
 volumes:
   static_volume:
   media_volume:
-  # FIXME: Using 3rd Provider postgres db
   local_postgres_data: {}
   local_postgres_data_backups: {}
-  flower_data: {}
+  local_cassandra_data: {}

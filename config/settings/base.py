@@ -1,6 +1,9 @@
 from pathlib import Path
 import environ
 from datetime import timedelta
+from cassandra.policies import RoundRobinPolicy
+from cassandra import ConsistencyLevel
+
 
 env = environ.Env()
 # Build paths inside the project like this: APP_DIR / 'subdir'.
@@ -25,7 +28,7 @@ THIRD_PARTY_APPS = [
     "phonenumbers",
     "phonenumber_field",
     "django_seed",
-
+    "django_cassandra_engine",
 ]
 
 LOCAL_APPS = [
@@ -36,6 +39,7 @@ LOCAL_APPS = [
     'core_apps.stories',
 ]
 
+# Update before Production
 INSTALLED_APPS = THIRD_PARTY_APPS + DJANGO_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
@@ -74,7 +78,30 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
-DATABASES = {"default": env.db("DATABASE_URL", f"sqlite:///{ROOT_DIR}/db.sqlite3")}
+DATABASES = {
+    "default": env.db("DATABASE_URL", f"sqlite:///{ROOT_DIR}/db.sqlite3"),
+    "cassandra": {
+        "ENGINE": "django_cassandra_engine",
+        "NAME": "db",
+        "USER": "cassandra",
+        "PASSWORD": "cassandra",
+        "TEST_NAME": "test_db",
+        "HOST": env.str("CASSANDRA_HOST"),
+        "PORT": env.str("CASSANDRA_PORT"),
+        "OPTIONS": {
+            "replication": {
+                "strategy_class": "SimpleStrategy",
+                "replication_factor": 1,
+            },
+            "connection": {
+                "retry_connect": True,
+                "consistency": ConsistencyLevel.ALL,
+                "load_balancing_policy": RoundRobinPolicy(),
+            },
+            "session": {"default_timeout": 15},
+        },
+    },
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'core_apps.schema.paginators.MediumSizePagination',

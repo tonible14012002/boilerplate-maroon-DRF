@@ -50,9 +50,10 @@ COPY ./docker/local/django/celery/worker/start.sh /start-celeryworker.sh
 RUN sed -i 's/\r$//g' /start-celeryworker.sh
 RUN chmod +x /start-celeryworker.sh
 
-COPY ./docker/local/django/celery/flower/start.sh /start-flower.sh
-RUN sed -i 's/\r$//g' /start-flower.sh
-RUN chmod +x /start-flower.sh
+# Add wait-for-it.sh
+COPY ./docker/scripts/wait-for-it.sh /wait-for-it.sh
+RUN sed -i 's/\r$//g' /wait-for-it.sh
+RUN chmod +x /wait-for-it.sh
 
 COPY . ${APP_HOME}
 

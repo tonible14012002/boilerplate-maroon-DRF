@@ -27,6 +27,11 @@ class UserAchievedStory(ModelViewSet):
     def get_serializer_context(self):
         return super().get_serializer_context()
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
 
 class FollowingStory(ViewSet, ListAPIView, RetrieveAPIView):
     permission_classes = [IsAuthenticated]

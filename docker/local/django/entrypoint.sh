@@ -14,6 +14,8 @@ fi
 export DATABASE_URL=${DATABASE_URL}
 echo "${POSTGRES_HOST} ${POSTGRES_PORT} ${POSTGRES_DB} ${POSTGRES_USER} ${POSTGRES_PASSWORD} ${POSTGRES_DB}"
 
+# exec "/wait-for-it.sh ${DATABASE_URL}"
+
 python << END
 import sys
 import time
@@ -38,5 +40,7 @@ while True:
 END
 
 >&2 echo "PostgreSQL is available"
+
+# exec "/wait-for-it.sh ${CASSANDRA_HOST}:${CASSANDRA_PORT}"
 
 exec "$@"

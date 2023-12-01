@@ -8,3 +8,6 @@ RABBITMQ_PASSWORD=guest
 # Edit rabbitmq host to local machine ip when run localy
 CELERY_FLOWER_USER=admin
 CElERY_FLOWER_PASSWORD=123456
+
+CASSANDRA_HOST=cassandra
+CASSANDRA_PORT=9042
