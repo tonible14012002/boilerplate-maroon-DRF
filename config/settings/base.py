@@ -86,8 +86,8 @@ DATABASES = {
         "USER": "cassandra",
         "PASSWORD": "cassandra",
         "TEST_NAME": "test_db",
-        "HOST": env.str("CASSANDRA_HOST"),
-        "PORT": env.str("CASSANDRA_PORT"),
+        "HOST": env.str("CASSANDRA_HOST", "cassdandra"),
+        "PORT": env.str("CASSANDRA_PORT", "9042"),
         "OPTIONS": {
             "replication": {
                 "strategy_class": "SimpleStrategy",
@@ -205,10 +205,14 @@ AUTH_USER_MODEL = 'accounts.MyUser'
 
 APPEND_SLASH = False
 
-CELERY_BROKER_URL = env("BROKER_URL")
-CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_BROKER_URL = env.str("BROKER_URL", "amqp://guest:guest@rabbitmq:5672/")
+# CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_RESULT_BACKEND_MAX_RETRIES = 10
 CELERY_TASK_SEND_SENT_EVENT = True
+
+CELERY_IMPORTS = [
+    'core_apps.stories',
+]

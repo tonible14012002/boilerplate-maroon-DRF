@@ -88,9 +88,14 @@ class UserStory(TimeStampedModel, UpdateModelFieldMixin):
         stories = cls.is_active.following_only()
         return stories
 
+    # Deprecated Method
     @classmethod
     def get_following_only(cls, user):
         return cls.is_active.following_only(user)
+
+    @classmethod
+    def from_pkids(cls, pkids):
+        return cls.objects.filter(pkid__in=pkids)
 
     # Mutator
     def exclude_user(self, user: account_models.MyUser):

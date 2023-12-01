@@ -15,6 +15,7 @@ services:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
       - ./.envs/.local/.rabbitmq
+      - ./.envs/.local/.cassandra
     # FIXME: Using 3rd provider postgres db
     depends_on:
       - postgres
@@ -80,6 +81,7 @@ services:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
       - ./.envs/.local/.rabbitmq
+      - ./.envs/.local/.cassandra
     depends_on:
       - rabbitmq_server
       - postgres
@@ -97,7 +99,6 @@ services:
       - "9042"
     networks:
       - instagram-api
-
 
 networks:
   instagram-api:

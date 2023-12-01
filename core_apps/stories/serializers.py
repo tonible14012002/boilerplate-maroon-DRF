@@ -46,6 +46,7 @@ class CRUStoryDetail(ModelSerializer):
 
     def get_fields(self):
         fields = super().get_fields()
+        # media_url is not allowed in update
         if self.instance:
             # update
             fields['media_url'].required = False
@@ -54,7 +55,7 @@ class CRUStoryDetail(ModelSerializer):
     def to_internal_value(self, data):
         valid_data = super().to_internal_value(data)
         if self.instance:
-            # update
+            # not allow in update
             for field in self.Meta.create_only_fields:
                 valid_data.pop(field, None)
         return valid_data

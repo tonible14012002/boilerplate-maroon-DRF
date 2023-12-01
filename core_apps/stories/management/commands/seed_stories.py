@@ -34,10 +34,10 @@ class Command(management.BaseCommand):
         }
 
         self.stdout.write(self.style.WARNING(
-                f'''Seed stories will be own by random users created using \'seed_users\' cmd.\n
+            f'''Seed stories will be own by random users created using \'seed_users\' cmd.\n
                  The schema for stories is following:
                 {json.dumps(story_schema, indent=2)}''',
-            ))
+        ))
         self.stdout.write(self.style.WARNING('Seeding stories...'))
 
         for _ in range(total_stories):
@@ -45,7 +45,7 @@ class Command(management.BaseCommand):
             duration_choices = [10, 15, 30]
             models.UserStory.create_new(
                 user=user,
-                privacy_mode=enums.PrivacyMode.Public[1],
+                privacy_mode=enums.PrivacyMode.Public,
                 media_type=enums.MediaType.Image[1],
                 media_url="",
                 live_time=86400,

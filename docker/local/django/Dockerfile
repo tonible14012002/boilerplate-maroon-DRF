@@ -50,7 +50,7 @@ COPY ./docker/local/django/celery/worker/start.sh /start-celeryworker.sh
 RUN sed -i 's/\r$//g' /start-celeryworker.sh
 RUN chmod +x /start-celeryworker.sh
 
-# Add wait-for-it.sh
+# add Wait-for-it.sh - FIXME: not-working
 COPY ./docker/scripts/wait-for-it.sh /wait-for-it.sh
 RUN sed -i 's/\r$//g' /wait-for-it.sh
 RUN chmod +x /wait-for-it.sh
