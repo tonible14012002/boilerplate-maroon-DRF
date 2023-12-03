@@ -99,6 +99,19 @@ services:
       - "9042"
     networks:
       - instagram-api
+  
+  cassandra_init:
+    depends_on:
+      - cassandra
+    build:
+      context: .
+      dockerfile: ./docker/local/cassandra/Dockerfile
+    env_file:
+      - ./.envs/.local/.cassandra
+    command: cqlsh cassandra -f /schema.cql
+    networks:
+      - instagram-api
+    
 
 networks:
   instagram-api:

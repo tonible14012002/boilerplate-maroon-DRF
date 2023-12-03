@@ -79,7 +79,7 @@ class PostStory(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid():
             story = serializer.save()
 
             # Schedule Task For Push to Cassandra StoryInbox
@@ -93,6 +93,7 @@ class PostStory(GenericAPIView):
                 serializers.CRUStoryDetail(story).data,
                 status=status.HTTP_200_OK
             )
+
         return response.Response(
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST

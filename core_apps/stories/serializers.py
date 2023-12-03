@@ -28,12 +28,13 @@ class CRUStoryDetail(ModelSerializer):
         write_only=True,
         required=True
     )
+    owner = account_serializers.ReadBasicUserProfile(source="user", read_only=True)
 
     class Meta:
         model = UserStory
         fields = [
             'id', 'duration', 'excluded_users', 'media_url', 'created_at', 'updated_at',
-            'live_time', 'status', 'privacy_mode', 'views', 'users_to_exclude', 'expire_date', 'media_type'
+            'live_time', 'status', 'privacy_mode', 'views', 'users_to_exclude', 'expire_date', 'media_type', 'owner'
         ]
         read_only_fields = ['status', 'views', 'expire_date']
         create_only_fields = ['duration', 'media_url', 'live_time']

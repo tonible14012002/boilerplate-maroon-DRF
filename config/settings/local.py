@@ -8,3 +8,5 @@ ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = [
     # Add nginx origin
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
