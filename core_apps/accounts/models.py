@@ -43,13 +43,11 @@ class MyUser(AbstractUser):
         return user
 
     # Properties
-    @property
     def is_following_user(self, user):
-        return self.followers.filter(pkid=user.pkid).exists()
+        return self.followings.filter(pkid=user.pkid).exists()
 
-    @property
     def is_following_user_pk(self, userPk):
-        return self.followers.filter(pkid=userPk).exists()
+        return self.followings.filter(pkid=userPk).exists()
 
     @property
     def total_followers(self):

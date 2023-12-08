@@ -7,7 +7,6 @@ from rest_framework.generics import (
     GenericAPIView
 )
 from . import serializers
-from .models import Profile
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -24,11 +23,6 @@ User = get_user_model()
 
 
 # Create your views here.
-class ProfileViewSet(ViewSet, ListAPIView):
-    queryset = Profile.objects.all()
-    serializer_class = serializers.ReadBasicUserProfile
-
-
 class UserProfileViewset(ViewSet, RetrieveAPIView, UpdateAPIView, ListAPIView):
     queryset = User.objects.all()
     serializer_class = serializers.ReadUpdateUserProfile

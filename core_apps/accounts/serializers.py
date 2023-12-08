@@ -19,8 +19,6 @@ class ReadBasicUserProfile(ModelSerializer):
 
 class ReadUpdateUserProfile(ModelSerializer):
 
-    # total_followers = serializers.IntegerField(source='total_followers', read_only=True)
-    # total_followings = serializers.IntegerField(source='total_followings', read_only=True)
     fullname = serializers.CharField(source='get_fullname', read_only=True)
 
     # Profile fields -> data['profile']
@@ -29,6 +27,7 @@ class ReadUpdateUserProfile(ModelSerializer):
     city = serializers.CharField(source='profile.city', default="")
     country = serializers.CharField(source='profile.country', default="")
     nickname = serializers.CharField(source='profile.nickname', default="")
+    is_followed = serializers.SerializerMethodField(method_name='check_is_followed')
 
     class Meta:
         USER_FIELDS = [
@@ -36,10 +35,21 @@ class ReadUpdateUserProfile(ModelSerializer):
         ]
         USER_EXTRA_FIELDS = ['total_followers', 'fullname', 'total_followings']
         PROFILE_FIELDS = ['avatar', 'gender', 'city', 'country', 'nickname']
+        EXTRA_FIELDS = ['is_followed']
 
         model = User
-        fields = PROFILE_FIELDS + USER_FIELDS + USER_EXTRA_FIELDS
-        read_only_fields = ['username', 'email', 'total_followers', 'total_followings']
+        fields = PROFILE_FIELDS + USER_FIELDS + USER_EXTRA_FIELDS + EXTRA_FIELDS
+        read_only_fields = ['username', 'email', 'total_followers', 'total_followings'] + EXTRA_FIELDS
+
+    def check_is_followed(self, instance):
+        request = self.context.get('request', None)
+        if (
+            request
+            and request.user.is_authenticated
+            and request.user.pkid != instance.pkid
+        ):
+            return request.user.is_following_user(instance)
+        return None
 
     def update(self, user: models.MyUser, validated_data: dict):
         profile: models.Profile = user.profile
