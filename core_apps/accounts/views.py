@@ -92,7 +92,7 @@ class UserProfileSearch(ListAPIView):
     search_fields = ['username', 'last_name', 'first_name', 'email']
 
     def get_queryset(self):
-        users = User.objects.order_by_followers()
+        users = User.objects.order_by_join_day()
         gender = self.request.query_params.get('gender')
         if gender:
             return users.filter(profile__gender=gender)

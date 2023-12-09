@@ -23,6 +23,12 @@ class UserManager(models.UserManager):
         else:
             return self.get_queryset().annotate(num_followers=Count('followers')).order_by('-num_followers')
 
+    def order_by_join_day(self, ascendent=False):
+        if ascendent:
+            return self.get_queryset().order_by('-date_joined')
+        else:
+            return self.get_queryset().order_by('date_joined')
+
 
 class TestUserManager(UserManager):
     def get_queryset(self) -> QuerySet:
