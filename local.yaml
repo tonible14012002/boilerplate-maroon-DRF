@@ -1,6 +1,20 @@
 version: "3.9"
 
 services:
+
+  # NOTE: Migrating from Postgres to MSSQL
+  # mssql:
+  #   image: mcr.microsoft.com/mssql/server:latest
+  #   platform: linux/amd64
+  #   ports:
+  #     - "1433:1433"
+  #   volumes:
+  #     - local_mssql_data:/var/opt/mssql
+  #   env_file:
+  #     - ./.envs/.local/.mssql
+  #   networks:
+  #     - instagram-api
+
   api:
     build:
       context: .
@@ -20,10 +34,11 @@ services:
     depends_on:
       - postgres
       # - mailhog
-    command:  /bin/bash -c "ls -la && /start.sh"
+    command:  /start.sh
     networks:
       - instagram-api
 
+  # NOTE: Migrating to MSSQL for school project
   postgres:
     build:
       context: .
@@ -120,6 +135,9 @@ networks:
 volumes:
   static_volume:
   media_volume:
+  local_cassandra_data: {}
+  # Migrating to MSSQL
   local_postgres_data: {}
   local_postgres_data_backups: {}
-  local_cassandra_data: {}
+  
+  # local_mssql_data: {}

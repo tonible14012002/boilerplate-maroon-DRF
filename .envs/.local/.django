@@ -5,6 +5,5 @@ BUILD_ENVIRONMENT=local
 RABBITMQ_USER=guest
 RABBITMQ_PASSWORD=guest
 
-# Edit rabbitmq host to local machine ip when run localy
 CELERY_FLOWER_USER=admin
 CElERY_FLOWER_PASSWORD=123456

@@ -18,12 +18,18 @@ from core_apps.schema import paginators
 
 from rest_framework.permissions import SAFE_METHODS
 from .permissions import IsAccountOwner
+from rest_framework import filters
+
 
 User = get_user_model()
 
 
 # Create your views here.
 class UserProfileViewset(ViewSet, RetrieveAPIView, UpdateAPIView, ListAPIView):
+    ''' screens
+    - Profile
+    - Search User
+    '''
     queryset = User.objects.all()
     serializer_class = serializers.ReadUpdateUserProfile
     lookup_field = 'id'
@@ -78,3 +84,17 @@ class UserFollowings(ListAPIView):
         view_user = get_object_or_404(User, id=self.kwargs.get('uid', ''))
         users = view_user.followings.all()
         return users
+
+
+class UserProfileSearch(ListAPIView):
+    serializer_class = serializers.ReadUpdateUserProfile
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['username', 'last_name', 'first_name', 'email']
+
+    def get_queryset(self):
+        users = User.objects.order_by_followers()
+        gender = self.request.query_params.get('gender')
+        if gender:
+            return users.filter(profile__gender=gender)
+        else:
+            return users

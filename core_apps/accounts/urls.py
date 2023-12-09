@@ -8,10 +8,11 @@ profile_router = routers.DefaultRouter()
 profile_router.register('', views.UserProfileViewset, "profile")
 
 urlpatterns = [
+    path('profile/search/', views.UserProfileSearch.as_view()),
     path('profile/registration/', views.ProfileRegistration.as_view()),
+    path('profile/', include(profile_router.urls)),
     path('profile/<uuid:uid>/follow/', views.FollowUser.as_view()),
     path('profile/<uuid:uid>/unfollow/', views.UnFollowUser.as_view()),
     path('profile/<uuid:uid>/followers/', views.UserFollowers.as_view()),
     path('profile/<uuid:uid>/followings/', views.UserFollowings.as_view()),
-    path('profile/', include(profile_router.urls)),
 ]

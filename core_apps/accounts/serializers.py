@@ -14,7 +14,7 @@ class ReadBasicUserProfile(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'avatar', 'nickname', 'first_name', 'last_name']
+        fields = ['id', 'avatar', 'nickname', 'first_name', 'last_name', 'total_followers']
 
 
 class ReadUpdateUserProfile(ModelSerializer):

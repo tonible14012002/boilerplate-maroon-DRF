@@ -4,6 +4,9 @@ from collections import OrderedDict
 
 
 class MyBasePagination(PageNumberPagination):
+    '''
+    include params `page` and `pageSize` in request
+    '''
     page_size_query_param = "pageSize"
     max_page_size = 1000
     page_query_param = "page"

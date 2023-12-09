@@ -42,7 +42,7 @@ class Command(management.BaseCommand):
                     'country': random.choice(self.countries),
                     'city': random.choice(self.city_names),
                     'avatar': '',
-                    'gender': random.choice(enums.Gender.choices)[1]
+                    'gender': random.choice(enums.Gender.choices)[0][0]
                 },
                 is_test=True
             )
