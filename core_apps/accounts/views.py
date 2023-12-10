@@ -98,3 +98,32 @@ class UserProfileSearch(ListAPIView):
             return users.filter(profile__gender=gender)
         else:
             return users
+
+
+class UserProfileByIds(GenericAPIView):
+    '''
+    method: POST
+    body: {
+        user_ids: [
+            'asdofias'
+            'asdofias'
+        ],
+        detail: true
+    }
+    '''
+    permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        detail = self.request.data.get('detail', None)
+        if detail is not None and detail:
+            return serializers.ReadUpdateUserProfile
+        return serializers.ReadBasicUserProfile
+
+    def get_queryset(self):
+        user_ids = self.request.data.get('user_ids')
+        return User.objects.filter(id__in=user_ids)
+
+    def post(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=HTTP_200_OK)
