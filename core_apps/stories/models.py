@@ -20,6 +20,9 @@ from .managers import (
 
 # Create your models here.
 class UserStory(TimeStampedModel, UpdateModelFieldMixin):
+    '''
+    create instance using factory method `.create_new` instead
+    '''
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=False,
@@ -27,6 +30,12 @@ class UserStory(TimeStampedModel, UpdateModelFieldMixin):
         related_name='stories'
     )
 
+    caption = models.CharField(max_length=200)
+    alt_text = models.CharField(max_length=200)
+    view_option = models.CharField(
+        choices=enums.ViewOption.choices,
+        default=enums.ViewOption.Everyone
+    )
     excluded_users = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         related_name='excluded_stories'
@@ -68,21 +77,32 @@ class UserStory(TimeStampedModel, UpdateModelFieldMixin):
 
     # Factories
     @classmethod
-    def create_new(cls, *, user, privacy_mode, media_url, duration, media_type, live_time):
+    def create_new(
+            cls, *, user, privacy_mode, media_url, caption, alt_text,
+            duration, media_type, live_time, view_option
+    ):
         return cls.objects.create(
             user=user,
             expire_date=timezone.now() + timedelta(seconds=live_time),
             privacy_mode=privacy_mode,
             media_url=media_url,
             media_type=media_type,
-            duration=duration
+            duration=duration,
+            caption=caption,
+            alt_text=alt_text,
+            view_option=view_option
         )
 
     # Properties
     def is_viewed_by(self, user):
         return self.story_views.filter(user=user).exist()
 
-    # Queries
+    def is_excluded_by_pkid(self, pkid):
+        return self.excluded_users.filter(pkid=pkid).exists()
+
+    def is_excluded_by_id(self, id):
+        return self.excluded_users.filter(id=id).exists()
+
     @classmethod
     def get_for_followers(cls):
         stories = cls.is_active.following_only()
@@ -94,8 +114,15 @@ class UserStory(TimeStampedModel, UpdateModelFieldMixin):
         return cls.is_active.following_only(user)
 
     @classmethod
-    def from_pkids(cls, pkids):
-        return cls.objects.filter(pkid__in=pkids)
+    def from_ids(cls, ids):
+        return cls.objects.filter(id__in=ids)
+
+    @classmethod
+    def get_active_stories_for_users(cls, user, viewer_user):
+        stories = cls.is_active.filter(user=user)
+        if viewer_user:
+            return stories.exclude(excluded_users=user)
+        return stories
 
     # Mutator
     def exclude_user(self, user: account_models.MyUser):

@@ -15,8 +15,7 @@ from .permissions import (
 from rest_framework import response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from rest_framework import exceptions
-from core_apps.common.utils import db as common_db_utils
+from . import story_inbox
 from . import task
 
 
@@ -39,32 +38,18 @@ class UserAchievedStoryViewset(ModelViewSet):
         self.perform_create(serializer)
 
 
-class FollowingStoryViewset(ViewSet, ListAPIView, RetrieveAPIView):
+class AllFollowingStory(ListAPIView, RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.RFollowingStory
 
-    def get_story_inbox_query(self, user_pkid):
-        return '''
-            SELECT story_id FROM db.story_inbox
-            WHERE user_id = '{user_id}'
-            ALLOW FILTERING;
-        '''.format(user_id=user_pkid)
-
     def get_queryset(self):
         user = self.request.user
-        try:
-            connection = common_db_utils.cassandra_connection()
-            query = self.get_story_inbox_query(user.pkid)
-            print(query, flush=True)
-            with connection.cursor() as cursor:
-                story_ids = map(lambda id_dic: id_dic['story_id'], cursor.execute(
-                    query
-                ))
-        except Exception as e:
-            print(e, flush=True)
-            raise exceptions.NotFound()
-
-        return models.UserStory.from_pkids(story_ids)
+        owner_id = self.request.query_params.get('owner_id')
+        inbox = story_inbox.StoryInbox(user_id=user.id)
+        if owner_id:
+            return inbox.get_all_from_user(sender_id=owner_id)
+        else:
+            return inbox.get_all()
 
 
 class Story(ViewSet, ListAPIView):
@@ -83,11 +68,13 @@ class PostStory(GenericAPIView):
             story = serializer.save()
 
             # Schedule Task For Push to Cassandra StoryInbox
-            task.boardcast_story_inbox.delay(
-                request.user.pkid,
-                story.pkid,
-                story.live_time
-            )
+            # task.boardcast_story_inbox.delay(
+            #     request.user.id,
+            #     story.id,
+            #     story.live_time
+            # )
+            inbox = story_inbox.StoryInbox(request.user.id)
+            inbox.send_story(story_id=story.id, ttl=story.live_time)
 
             return response.Response(
                 serializers.CRUStoryDetail(story).data,

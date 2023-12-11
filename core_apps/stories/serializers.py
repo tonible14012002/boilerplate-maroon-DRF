@@ -34,7 +34,9 @@ class CRUStoryDetail(ModelSerializer):
         model = UserStory
         fields = [
             'id', 'duration', 'excluded_users', 'media_url', 'created_at', 'updated_at',
-            'live_time', 'status', 'privacy_mode', 'views', 'users_to_exclude', 'expire_date', 'media_type', 'owner'
+            'live_time', 'status', 'privacy_mode', 'views',
+            'users_to_exclude', 'expire_date', 'media_type', 'owner',
+            'caption', 'alt_text', 'view_option'
         ]
         read_only_fields = ['status', 'views', 'expire_date']
         create_only_fields = ['duration', 'media_url', 'live_time']
@@ -92,5 +94,6 @@ class RFollowingStory(ModelSerializer):
         model = UserStory
         fields = [
             'id', 'duration', 'media_url', 'created_at',
-            'status', 'privacy_mode', 'expire_date', 'owner'
+            'status', 'privacy_mode', 'expire_date', 'owner',
+            'alt_text', 'caption'
         ]

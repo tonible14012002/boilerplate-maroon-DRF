@@ -28,3 +28,8 @@ class LiveTime(models.IntegerChoices):
     HalfDay = 4300
     OneDay = 8600
     TwoDay = 17200
+
+
+class ViewOption(models.TextChoices):
+    OnlyMe = ('ONLY_ME', 'Only me')
+    Everyone = ('EVERYONE', 'Every one')

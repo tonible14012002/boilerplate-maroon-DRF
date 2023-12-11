@@ -4,6 +4,7 @@ from django.core.management.base import CommandParser
 from django.contrib import auth
 from ... import enums
 from ... import models
+from ...import story_inbox
 import json
 import random
 
@@ -30,7 +31,9 @@ class Command(management.BaseCommand):
             'media_type': 'IMAGE',
             'media_url': '',
             'live_time': 86400,
-            'duration': 'randome in set (10, 15, 30)'
+            'duration': 'randome in set (10, 15, 30)',
+            'alt_text': 'gened Alt text',
+            'caption': 'Story caption fot testing',
         }
 
         self.stdout.write(self.style.WARNING(
@@ -43,13 +46,17 @@ class Command(management.BaseCommand):
         for _ in range(total_stories):
             user = random.choice(random_users)
             duration_choices = [10, 15, 30]
-            models.UserStory.create_new(
+            story = models.UserStory.create_new(
                 user=user,
                 privacy_mode=enums.PrivacyMode.Public,
                 media_type=enums.MediaType.Image[1],
                 media_url="",
                 live_time=86400,
-                duration=random.choice(duration_choices)
+                duration=random.choice(duration_choices),
+                alt_text=story_schema['alt_text'],
+                caption=story_schema['caption']
             )
+            inbox = story_inbox.StoryInbox(user.id)
+            inbox.send_story(story_id=story.id, ttl=story.live_time)
 
         self.stdout.write(self.style.SUCCESS(f'Successfully generated {total_stories} stories for random users.'))
