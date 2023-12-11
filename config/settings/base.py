@@ -37,6 +37,7 @@ LOCAL_APPS = [
     'core_apps.schema',
     'core_apps.common',
     'core_apps.stories',
+    'core_apps.async_celery'
 ]
 
 # Update before Production

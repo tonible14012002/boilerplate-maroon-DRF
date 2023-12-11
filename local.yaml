@@ -97,6 +97,7 @@ services:
       - ./.envs/.local/.postgres
       - ./.envs/.local/.rabbitmq
       - ./.envs/.local/.cassandra
+      - ./.envs/.local/.celery
     depends_on:
       - rabbitmq_server
       - postgres

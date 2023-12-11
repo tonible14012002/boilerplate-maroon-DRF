@@ -68,13 +68,13 @@ class PostStory(GenericAPIView):
             story = serializer.save()
 
             # Schedule Task For Push to Cassandra StoryInbox
-            # task.boardcast_story_inbox.delay(
-            #     request.user.id,
-            #     story.id,
-            #     story.live_time
-            # )
-            inbox = story_inbox.StoryInbox(request.user.id)
-            inbox.send_story(story_id=story.id, ttl=story.live_time)
+            task.boardcast_story_inbox.delay(
+                request.user.id,
+                story.id,
+                story.live_time
+            )
+            # inbox = story_inbox.StoryInbox(request.user.id)
+            # inbox.send_story(story_id=story.id, ttl=story.live_time)
 
             return response.Response(
                 serializers.CRUStoryDetail(story).data,

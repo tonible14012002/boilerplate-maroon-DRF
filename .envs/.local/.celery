@@ -1,0 +1,1 @@
+IS_CELERY_WORKER=True
