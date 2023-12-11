@@ -36,9 +36,9 @@ class CRUStoryDetail(ModelSerializer):
             'id', 'duration', 'excluded_users', 'media_url', 'created_at', 'updated_at',
             'live_time', 'status', 'privacy_mode', 'views',
             'users_to_exclude', 'expire_date', 'media_type', 'owner',
-            'caption', 'alt_text', 'view_option'
+            'caption', 'alt_text', 'view_option', 'total_view'
         ]
-        read_only_fields = ['status', 'views', 'expire_date']
+        read_only_fields = ['status', 'views', 'expire_date', 'total_view']
         create_only_fields = ['duration', 'media_url', 'live_time']
         extra_kwargs = {
             'duration': {'required': True},
@@ -95,5 +95,11 @@ class RFollowingStory(ModelSerializer):
         fields = [
             'id', 'duration', 'media_url', 'created_at',
             'status', 'privacy_mode', 'expire_date', 'owner',
-            'alt_text', 'caption'
+            'alt_text', 'caption', 'total_view'
         ]
+        read_only_fields = ['total_view']
+
+    def to_representation(self, instance):
+        '''
+        '''
+        return super().to_representation(instance)

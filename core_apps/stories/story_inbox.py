@@ -19,6 +19,7 @@ class StoryInbox():
             VALUES ('{user_id}', '{story_id}', '{owner_id}')
             USING TTL {ttl};
         '''
+        # add story inbox to self also
         insert_story_inbox_cql = f'''
             BEGIN BATCH
                 {" ".join(list(map(
@@ -30,6 +31,12 @@ class StoryInbox():
                     ),
                     user_ids
                 )))}
+                {row_insert_query.format(
+                    user_id=sender_id,
+                    story_id=story_id,
+                    owner_id=sender_id,
+                    ttl=ttl
+                )}
             APPLY BATCH;
         '''
         return insert_story_inbox_cql
@@ -56,7 +63,6 @@ class StoryInbox():
         self.connection.close()
 
     def __cursor(self):
-        assert self.connection
         return self.connection.cursor()
 
     def get_all_ids(self):

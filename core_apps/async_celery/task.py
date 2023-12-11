@@ -1,15 +1,12 @@
-import threading
 from celery.signals import worker_process_init, worker_process_shutdown
-from . import db
-
-thread_local = threading.local()
+from core_apps.common.utils import db as common_db_utils
 
 
 @worker_process_init.connect
-def open_cassandra_session(*args, **kwargs):
-    db.__new_cassandra_connection()
+def connect_db(**_):
+    common_db_utils.cassandra_connection().reconnect()
 
 
 @worker_process_shutdown.connect
-def close_cassandra_session(*args, **kwargs):
-    db.__close_cassandra_connection()
+def disconnect(**_):
+    common_db_utils.cassandra_connection().close_all()

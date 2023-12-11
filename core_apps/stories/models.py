@@ -30,7 +30,7 @@ class UserStory(TimeStampedModel, UpdateModelFieldMixin):
         related_name='stories'
     )
 
-    caption = models.CharField(max_length=200)
+    caption = models.CharField(max_length=200, blank=True)
     alt_text = models.CharField(max_length=200)
     view_option = models.CharField(
         choices=enums.ViewOption.choices,
@@ -102,6 +102,10 @@ class UserStory(TimeStampedModel, UpdateModelFieldMixin):
 
     def is_excluded_by_id(self, id):
         return self.excluded_users.filter(id=id).exists()
+
+    @property
+    def total_view(self):
+        return self.story_views.count()
 
     @classmethod
     def get_for_followers(cls):

@@ -18,6 +18,7 @@ class MyUser(AbstractUser):
     followers = models.ManyToManyField("self", related_name='followings', symmetrical=False)
     is_test = models.BooleanField(default=False)
 
+    # not in database
     objects = managers.UserManager()
     tests = managers.TestUserManager()
 
@@ -80,7 +81,6 @@ class MyUser(AbstractUser):
 
 
 class Profile(TimeStampedModel, UpdateModelFieldMixin):
-
     user = models.OneToOneField(MyUser, on_delete=models.CASCADE, related_name='profile')
     avatar = models.URLField(default='', max_length=2000)
     gender = models.CharField(choices=enums.Gender.choices, max_length=20, default=enums.Gender.Other)

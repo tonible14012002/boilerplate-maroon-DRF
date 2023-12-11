@@ -73,6 +73,7 @@ class PostStory(GenericAPIView):
                 story.id,
                 story.live_time
             )
+
             # inbox = story_inbox.StoryInbox(request.user.id)
             # inbox.send_story(story_id=story.id, ttl=story.live_time)
 
