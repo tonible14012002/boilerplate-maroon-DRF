@@ -5,8 +5,10 @@ from rest_framework.viewsets import (
 from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
-    GenericAPIView
+    GenericAPIView,
 )
+from rest_framework.views import APIView
+from django.db import IntegrityError
 from . import models
 from . import serializers
 from .permissions import (
@@ -20,7 +22,14 @@ from . import task
 
 
 # Create your views here.
-class UserAchievedStoryViewset(ModelViewSet):
+
+class StoryViewSet(ModelViewSet):
+    queryset = models.UserStory.objects.all()
+    serializer_class = serializers.CRUStoryDetail
+    lookup_field = 'id'
+
+
+class UserAchievedStoryViewset(ViewSet, ListAPIView, RetrieveAPIView):
     permission_classes = [IsAuthenticated, IsStoryOwner]
     serializer_class = serializers.CRUStoryDetail
     lookup_field = 'id'
@@ -28,14 +37,6 @@ class UserAchievedStoryViewset(ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return models.UserStory.objects.filter(user=user)
-
-    def get_serializer_context(self):
-        return super().get_serializer_context()
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
 
 
 class AllFollowingStory(ListAPIView, RetrieveAPIView):
@@ -50,12 +51,6 @@ class AllFollowingStory(ListAPIView, RetrieveAPIView):
             return inbox.get_all_from_user(sender_id=owner_id)
         else:
             return inbox.get_all()
-
-
-class Story(ViewSet, ListAPIView):
-    # NOTE: For testing only
-    queryset = models.UserStory.is_active.all()
-    serializer_class = serializers.RFollowingStory
 
 
 class PostStory(GenericAPIView):
@@ -86,3 +81,18 @@ class PostStory(GenericAPIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
+
+
+class ViewStory(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        viewer = request.user
+        story_id = self.kwargs.get('uid')
+        print('storyId', story_id, flush=True)
+        story = models.UserStory.objects.get(id=story_id)
+        try:
+            story = models.StoryView.create_new(viewer=viewer, story=story)
+        except IntegrityError:
+            pass
+        return response.Response(True, status=status.HTTP_200_OK)

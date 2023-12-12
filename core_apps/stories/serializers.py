@@ -7,12 +7,12 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-class RStoryView(ModelSerializer):
+class CRStoryView(ModelSerializer):
     user = account_serializers.ReadBasicUserProfile()
 
     class Meta:
         model = StoryView
-        fields = ['id', 'user', 'story', 'viewed_at']
+        fields = ['pkid', 'user', 'story', 'viewed_at']
 
 
 class CRUStoryDetail(ModelSerializer):
@@ -21,7 +21,7 @@ class CRUStoryDetail(ModelSerializer):
     Must pass in request context for `.create()`
     """
 
-    views = RStoryView(many=True, source="story_views", read_only=True)
+    views = CRStoryView(many=True, source="story_views", read_only=True)
     excluded_users = account_serializers.ReadBasicUserProfile(many=True, read_only=True)
     users_to_exclude = serializers.ListField(
         child=serializers.UUIDField(),

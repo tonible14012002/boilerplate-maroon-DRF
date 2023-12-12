@@ -149,3 +149,10 @@ class StoryView(models.Model):
         db_table = 'story_viewer'
         unique_together = ['user', 'story']
         ordering = ['-viewed_at']
+
+    @classmethod
+    def create_new(cls, viewer, story):
+        return cls.objects.create(
+            user=viewer,
+            story=story,
+        )
