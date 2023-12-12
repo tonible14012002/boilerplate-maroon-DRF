@@ -11,10 +11,21 @@ Profile = models.Profile
 class ReadBasicUserProfile(ModelSerializer):
     avatar = serializers.URLField(source='profile.avatar')
     nickname = serializers.CharField(source='profile.nickname')
+    is_followed = serializers.SerializerMethodField(method_name='check_is_followed')
+
+    def check_is_followed(self, instance):
+        request = self.context.get('request', None)
+        if (
+            request
+            and request.user.is_authenticated
+            and request.user.pkid != instance.pkid
+        ):
+            return request.user.is_following_user(instance)
+        return None
 
     class Meta:
         model = User
-        fields = ['id', 'avatar', 'nickname', 'first_name', 'last_name', 'total_followers']
+        fields = ['id', 'avatar', 'nickname', 'first_name', 'last_name', 'total_followers', 'is_followed']
 
 
 class ReadUpdateUserProfile(ModelSerializer):

@@ -42,7 +42,7 @@ class StoryInbox():
         return insert_story_inbox_cql
 
     @classmethod
-    def __make_select_story_id_query(cls, user_id, owner_id):
+    def __make_select_story_id_query(cls, user_id, owner_id=None):
         if owner_id:
             additional_condi = f"AND owner_id = '{owner_id}'"
         else:
