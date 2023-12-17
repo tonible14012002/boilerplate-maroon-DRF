@@ -70,7 +70,7 @@ class PostStory(GenericAPIView):
             )
 
             # inbox = story_inbox.StoryInbox(request.user.id)
-            # inbox.send_story(story_id=story.id, ttl=story.live_time)
+            # inbox.broadcast_story(story_id=story.id, ttl=story.live_time)
 
             return response.Response(
                 serializers.CRUStoryDetail(story).data,

@@ -57,6 +57,6 @@ class Command(management.BaseCommand):
                 caption=story_schema['caption']
             )
             inbox = story_inbox.StoryInbox(user.id)
-            inbox.send_story(story_id=story.id, ttl=story.live_time)
+            inbox.broadcast_story(story_id=story.id, ttl=story.live_time)
 
         self.stdout.write(self.style.SUCCESS(f'Successfully generated {total_stories} stories for random users.'))

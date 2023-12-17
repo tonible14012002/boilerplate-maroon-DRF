@@ -19,7 +19,7 @@ from core_apps.schema import paginators
 from rest_framework.permissions import SAFE_METHODS
 from .permissions import IsAccountOwner
 from rest_framework import filters
-
+from config.celery import app as celery_app
 
 User = get_user_model()
 
@@ -51,9 +51,15 @@ class FollowUser(GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
+        # from core_apps.stories import task
         user = request.user
         to_follow_user = self.get_object()
         user.follow_user(to_follow_user)
+        celery_app.send_task(
+            'core_apps.stories.task.send_active_stories_to',
+            (user.id, to_follow_user.id)
+        )
+
         return Response({'success': True}, status=HTTP_200_OK)
 
 

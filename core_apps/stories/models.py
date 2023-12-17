@@ -6,6 +6,7 @@ from datetime import timedelta
 from core_apps.common.models.mixins import UpdateModelFieldMixin
 from core_apps.accounts import models as account_models
 from . import enums
+from . import story_inbox
 from .managers import (
     ExpiredStoryManager,
     ActiveStoryManager
@@ -138,6 +139,14 @@ class UserStory(TimeStampedModel, UpdateModelFieldMixin):
     def reset_exclude_users(self, users):
         self.excluded_users.set(users)
 
+    # Utils
+    @classmethod
+    def get_stories_inbox_by_user_id(user_id):
+        return story_inbox.StoryInbox(user_id=user_id)
+
+    def get_stories_inbox(self):
+        return story_inbox.StoryInbox(self.user.id)
+
 
 class StoryView(models.Model):
     pkid = models.BigAutoField(primary_key=True, editable=True)
@@ -156,3 +165,7 @@ class StoryView(models.Model):
             user=viewer,
             story=story,
         )
+
+    @classmethod
+    def get_story_inbox(cls):
+        pass

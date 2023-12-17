@@ -4,9 +4,9 @@ from phonenumber_field.modelfields import PhoneNumberField
 from core_apps.common.models import TimeStampedModel
 from django_countries.fields import CountryField
 from core_apps.common.models.mixins import UpdateModelFieldMixin
+import uuid
 from . import enums
 from . import managers
-import uuid
 
 
 # Create your models here.
@@ -61,6 +61,7 @@ class MyUser(AbstractUser):
     # Queries
 
     # Mutators
+
     def update_field(self, *, first_name, last_name, dob, phone):
         values = [first_name, last_name, dob, phone]
         attr_names = ['first_name', 'last_name', 'dob', 'phone']
@@ -76,16 +77,16 @@ class MyUser(AbstractUser):
     def unfollow_user(self, *user):
         self.followings.remove(*user)
 
-    def follow_user(self, *user,):
-        self.followings.add(*user)
+    def follow_user(self, *users,):
+        self.followings.add(*users)
 
 
 class Profile(TimeStampedModel, UpdateModelFieldMixin):
     user = models.OneToOneField(MyUser, on_delete=models.CASCADE, related_name='profile')
     avatar = models.URLField(default='', max_length=2000)
     gender = models.CharField(choices=enums.Gender.choices, max_length=20, default=enums.Gender.Other)
-    country = CountryField(null=False, default="VN")
-    city = models.CharField(max_length=200, default="Ho Chi Minh")
+    country = CountryField(null=False, default="VN", blank=True)
+    city = models.CharField(max_length=200, default="Ho Chi Minh", blank=True)
     _nickname = models.CharField(max_length=100, null=True, unique=True)
 
     class Meta:
