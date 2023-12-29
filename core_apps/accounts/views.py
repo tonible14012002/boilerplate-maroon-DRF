@@ -20,6 +20,7 @@ from rest_framework.permissions import SAFE_METHODS
 from .permissions import IsAccountOwner
 from rest_framework import filters
 from config.celery import app as celery_app
+from rest_framework import views
 
 User = get_user_model()
 
@@ -38,6 +39,13 @@ class UserProfileViewset(ViewSet, RetrieveAPIView, UpdateAPIView, ListAPIView):
         if self.request.method in SAFE_METHODS:
             return [IsAuthenticated()]
         return [IsAccountOwner()]
+
+
+class DeleteUserProfile(views.APIView):
+    def delete(self, request, *args, **kwargs):
+        request.user.profile.detele()
+        request.user.delete()
+        return Response(True)
 
 
 class ProfileRegistration(CreateAPIView):
