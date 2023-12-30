@@ -71,10 +71,6 @@ seed_users:
 seed_relationships:
 	docker compose -f local.yaml exec api python manage.py seed_user_relationship ${count}
 
-# Use: make seed_stories count=50
-seed_stories:
-	docker compose -f local.yaml exec api python manage.py seed_stories ${count}
-
 # make command="python manage.py createsuperuser"
 exec: 
 	docker compose -f local.yaml exec api ${command}

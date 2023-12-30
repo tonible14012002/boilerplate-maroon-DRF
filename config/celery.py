@@ -2,10 +2,9 @@ import os
 from celery import Celery
 
 
-# TODO: Change this in production
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
-app = Celery("config")
+app = Celery("boilerplate")
 
 app.config_from_object("django.conf:settings", namespace="CELERY")
 
