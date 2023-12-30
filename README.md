@@ -8,64 +8,42 @@
 | --- | --- |
 | ... | ... |
 
-### Local Development
+#### Local
 | Backend | Web |
 | --- | --- |
 | [localhost:8080](http://localhost:8080/)  | --- |
 
-### With Docker
-1. Build system
-```shell
-docker compose -f local.yaml up --build -d --remove-orphans
-```
-Or using makefile
+### Development
+#### prerequisite
+- Docker
+- Makefile
+- Python - pip
+- Virtualenv (optional - suggest)
+#### Installation
+### Run Server
+- Build system
 ```shell
 make build # Build container
-make down # Shutdown the container
 ```
-
-### Local Installation
-
-1. create Virtual environment (optional/suggest)
-   Go to project folder, run these commands
-
-```
-virtualenv env
-```
-
-2. Activate virtual env
-   For deactivate the env later, use `deactivate` cmd.
-
-```
-source env/bin/activate
-```
-
-3. Install Dependencies
-
+### Make Changes
+- Changes in database schema
 ```shell
-python -m pip install -r requirements/local.txt
+make makemigrations
+make migrate
 ```
 
-4. Connect the Database
-   he project use SQLite for default. To connect to custom database, config the DATABASE VARIABLE in `config/settings/base.py`.
-
-   Follow the Django docs for more details.
-
-5. Migrate database adn staticfiles
-
+- Create superuser
 ```shell
-python manage.py migrate --no-input
-python manage.py collectstatic --no-input
+make superuser
 ```
 
-6. Run the server through network
-
+- Shutdown system
 ```shell
-python manage.py runserver 0.0.0.0:8000
+make down
+make down-v # for delete the volumn also
 ```
 
-## Development
-#### Seed Data
+### Seed Data
 - Seed users instance
 ```shell
 make seed_users count=20
@@ -73,10 +51,6 @@ make seed_users count=20
 - Seed users' relationships
 ```shell
 make seed_relationships count=50
-```
-- Seed stories
-```shell
-make seed_stories count=50
 ```
 
 For more commands -> [Makefile](./makefile)
