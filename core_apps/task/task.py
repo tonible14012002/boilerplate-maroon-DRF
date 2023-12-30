@@ -1,12 +1,12 @@
 from celery.signals import worker_process_init, worker_process_shutdown
-import utils
+from django.db import connections
 
 
 @worker_process_init.connect
 def connect_db(**_):
-    utils.db_connection('cassandra').reconnect()
+    connections['cassandra'].reconnect()
 
 
 @worker_process_shutdown.connect
 def disconnect(**_):
-    utils.db_connection('cassandra').close_all()
+    connections['cassandra'].close_all()

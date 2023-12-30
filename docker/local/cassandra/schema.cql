@@ -1,3 +1,4 @@
+-- REPLACE WITH SCHEMA
 CREATE KEYSPACE IF NOT EXISTS db
     WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
 
