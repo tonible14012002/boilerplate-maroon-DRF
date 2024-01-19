@@ -1,3 +1,6 @@
+build-production:
+	docker compose -f production.yaml up --build -d --remove-orphans
+
 build:
 	docker compose -f local.yaml up --build -d --remove-orphans
 up:

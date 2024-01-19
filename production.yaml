@@ -1,0 +1,83 @@
+version: "3.9"
+# NOTE: currently not using this file for production
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/production/django/Dockerfile
+    volumes: # persist data and share file between multiple container in host machine
+      - .:/app:z # map the file in host to container
+      - static_volume:/app/staticfiles
+      - media_volume:/app/mediafiles
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.envs/.production/.django
+      - ./.envs/.production/.postgres
+      # - ./.envs/.production/.rabbitmq
+    # depends_on:
+      # - postgres
+    # FIXME: Using 3rd provider postgres db
+    command:  /start.sh
+    networks:
+      - instagram-api
+
+  # postgres:
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/local/postgres/Dockerfile
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - local_postgres_data:/var/lib/postgresql/data # This is the default path to postgres data storage
+  #     - local_postgres_data_backups:/backups
+  #   env_file:
+  #     - ./.envs/.local/.postgres
+  #   networks:
+  #     - instagram-api
+
+  # rabbitmq_server:
+  #   hostname: rabbitmq
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/local/rabbitmq/Dockerfile
+  #   ports:
+  #     # OPTIONAL: Expose the GUI port
+  #     - "5672:5672"
+  #     - "15672:15672"
+  #   expose:
+  #     - "5672"
+  #   env_file:
+  #     - ./.envs/.local/.rabbitmq
+  #   command: /start.sh
+  #   networks:
+  #     - instagram-api
+
+  # celery_worker:
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/local/django/Dockerfile
+  #   command: /start-celeryworker.sh
+  #   volumes:
+  #     - .:/app
+  #   env_file:
+  #     - ./.envs/.local/.django
+  #     - ./.envs/.local/.postgres
+  #     - ./.envs/.local/.rabbitmq
+  #     - ./.envs/.local/.celery
+  #   depends_on:
+  #     - rabbitmq_server
+  #     - postgres
+  #   networks:
+  #     - instagram-api
+
+networks:
+  instagram-api:
+    driver: bridge
+
+volumes:
+  static_volume:
+  media_volume:
+  # local_postgres_data: {}
+  # local_postgres_data_backups: {}
