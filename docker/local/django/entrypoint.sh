@@ -18,9 +18,5 @@ echo "${POSTGRES_HOST} ${POSTGRES_PORT} ${POSTGRES_DB} ${POSTGRES_USER} ${POSTGR
 
 >&2 echo "PostgreSQL is available"
 
-/wait-for-it.sh "${CASSANDRA_HOST}:${CASSANDRA_PORT}" --timeout=100
-
->&2 echo "Cassandra is available"
-
 
 exec "$@"

@@ -1,7 +1,5 @@
 from pathlib import Path
 from datetime import timedelta
-from cassandra.policies import RoundRobinPolicy
-from cassandra import ConsistencyLevel
 from constants import config as config_constant
 
 # Build paths inside the project like this: APP_DIR / 'subdir'.
@@ -38,7 +36,6 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "phonenumbers",
     "phonenumber_field",
-    "django_cassandra_engine",
 ]
 
 LOCAL_APPS = [
@@ -88,27 +85,6 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 DATABASES = {
     "default": config_constant.DEFAULT_DATABASE_URL,
-    "cassandra": {
-        "ENGINE": "django_cassandra_engine",
-        "NAME": "db",
-        "USER": config_constant.CASSANDRA_USER,
-        "PASSWORD": config_constant.CASSANDRA_PASSWORD,
-        "TEST_NAME": "test_db",
-        "HOST": config_constant.CASSANDRA_HOST,
-        "PORT": config_constant.CASSANDRA_PORT,
-        "OPTIONS": {
-            "replication": {
-                "strategy_class": "SimpleStrategy",
-                "replication_factor": 1,
-            },
-            "connection": {
-                "retry_connect": True,
-                "consistency": ConsistencyLevel.ALL,
-                "load_balancing_policy": RoundRobinPolicy(),
-            },
-            "session": {"default_timeout": 15},
-        },
-    },
 }
 
 REST_FRAMEWORK = {

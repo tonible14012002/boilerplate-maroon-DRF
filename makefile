@@ -18,9 +18,6 @@ makemigrations:
 migrate:
 	docker compose -f local.yaml run --rm api python manage.py migrate --database default
 
-sync_cassandra:
-	docker compose -f local.yaml run --rm api python manage.py sync_cassandra
-
 db_shell:
 	docker compose -f local.yaml run --rm api python manage.py dbshell
 
