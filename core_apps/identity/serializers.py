@@ -35,9 +35,6 @@ class RegisterUser(serializers.ModelSerializer):
         model = User
         fields = USER_FIELDS + PROFILE_FIELDS + ['password_confirm', 'password']
         extra_kwargs = {
-            'phone': {
-                'required': False
-            },
             'dob': {
                 'required': False
             }
