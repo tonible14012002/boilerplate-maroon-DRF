@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
-from rest_framework.validators import ValidationError
 from . import models
 
 User: models.MyUser = get_user_model()
@@ -81,46 +80,4 @@ class ReadUpdateUserProfile(ModelSerializer):
             phone=user_data.get('phone', None),
         )
 
-        return user
-
-
-class RegisterUser(ModelSerializer):
-    password = serializers.CharField(write_only=True)
-    password_confirm = serializers.CharField(write_only=True)
-    gender = serializers.CharField(source='profile.gender', required=False)
-    city = serializers.CharField(source='profile.city', required=False)
-    country = serializers.CharField(source='profile.country', required=False)
-    avatar = serializers.URLField(source='profile.avatar', required=False)
-
-    class Meta:
-        PROFILE_FIELDS = ['gender', 'country', 'city', 'avatar']
-        USER_FIELDS = ['id', 'username', 'first_name', 'last_name', 'email', 'dob', 'phone']
-
-        model = User
-        fields = USER_FIELDS + PROFILE_FIELDS + ['password_confirm', 'password']
-        extra_kwargs = {
-            'phone': {
-                'required': False
-            },
-            'dob': {
-                'required': False
-            }
-        }
-
-    def validate(self, attrs):
-        password = attrs.get('password')
-        password_confirm = attrs.get('password_confirm')
-        if password != password_confirm:
-            raise ValidationError('Confirm password incorrect')
-        return attrs
-
-    def create(self, validated_data):
-        validated_data.pop('password_confirm')
-        profile_data = validated_data.pop('profile', {})
-        user = User.create_register(
-            username=validated_data.pop('username'),
-            password=validated_data.pop('password'),
-            extra_fields=validated_data,
-            profile_fields=profile_data
-        )
         return user

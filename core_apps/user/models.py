@@ -20,7 +20,6 @@ class MyUser(AbstractUser):
     followers = models.ManyToManyField("self", related_name='followings', symmetrical=False)
     is_test = models.BooleanField(default=False)
 
-    # not in database
     objects = managers.UserManager()
     tests = managers.TestUserManager()
 

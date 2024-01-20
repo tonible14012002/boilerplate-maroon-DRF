@@ -3,7 +3,6 @@ from rest_framework.generics import (
     RetrieveAPIView,
     UpdateAPIView,
     ListAPIView,
-    CreateAPIView,
     GenericAPIView
 )
 from . import serializers
@@ -45,10 +44,6 @@ class DeleteUserProfile(views.APIView):
         request.user.profile.detele()
         request.user.delete()
         return Response(True)
-
-
-class ProfileRegistration(CreateAPIView):
-    serializer_class = serializers.RegisterUser
 
 
 class FollowUser(GenericAPIView):
