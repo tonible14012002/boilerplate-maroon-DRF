@@ -10,21 +10,10 @@ Profile = models.Profile
 class ReadBasicUserProfile(ModelSerializer):
     avatar = serializers.URLField(source='profile.avatar')
     nickname = serializers.CharField(source='profile.nickname')
-    is_followed = serializers.SerializerMethodField(method_name='check_is_followed')
-
-    def check_is_followed(self, instance):
-        request = self.context.get('request', None)
-        if (
-            request
-            and request.user.is_authenticated
-            and request.user.pkid != instance.pkid
-        ):
-            return request.user.is_following_user(instance)
-        return None
 
     class Meta:
         model = User
-        fields = ['id', 'avatar', 'nickname', 'first_name', 'last_name', 'total_followers', 'is_followed']
+        fields = ['id', 'avatar', 'nickname', 'first_name', 'last_name',]
 
 
 class ReadUpdateUserProfile(ModelSerializer):
@@ -37,29 +26,16 @@ class ReadUpdateUserProfile(ModelSerializer):
     city = serializers.CharField(source='profile.city', default="")
     country = serializers.CharField(source='profile.country', default="")
     nickname = serializers.CharField(source='profile.nickname', default="")
-    is_followed = serializers.SerializerMethodField(method_name='check_is_followed')
 
     class Meta:
         USER_FIELDS = [
             'id', 'username', 'first_name', 'last_name', 'email', 'dob', 'phone'
         ]
-        USER_EXTRA_FIELDS = ['total_followers', 'fullname', 'total_followings']
+        USER_EXTRA_FIELDS = ['fullname',]
         PROFILE_FIELDS = ['avatar', 'gender', 'city', 'country', 'nickname']
-        EXTRA_FIELDS = ['is_followed']
-
         model = User
-        fields = PROFILE_FIELDS + USER_FIELDS + USER_EXTRA_FIELDS + EXTRA_FIELDS
-        read_only_fields = ['username', 'email', 'total_followers', 'total_followings'] + EXTRA_FIELDS
-
-    def check_is_followed(self, instance):
-        request = self.context.get('request', None)
-        if (
-            request
-            and request.user.is_authenticated
-            and request.user.pkid != instance.pkid
-        ):
-            return request.user.is_following_user(instance)
-        return None
+        fields = PROFILE_FIELDS + USER_FIELDS + USER_EXTRA_FIELDS
+        read_only_fields = ['username', 'email']
 
     def update(self, user: models.MyUser, validated_data: dict):
         profile: models.Profile = user.profile
