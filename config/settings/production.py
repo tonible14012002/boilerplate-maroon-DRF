@@ -3,7 +3,7 @@ from .base import *  # noqa
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    # "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -12,4 +12,4 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-STATICFILES_STORAGES = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# STATICFILES_STORAGES = "whitenoise.storage.CompressedManifestStaticFilesStorage"
