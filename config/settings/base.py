@@ -41,7 +41,8 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     'core_apps.user',
     'core_apps.identity',
-    'core_apps.task'
+    'core_apps.task',
+    'core_apps.house',
 ]
 
 # Update before Production

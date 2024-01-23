@@ -82,3 +82,8 @@ class UserProfileByIds(GenericAPIView):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=HTTP_200_OK)
+
+
+class ProfileApi(views.APIView):
+    def post(self, request):
+        pass
