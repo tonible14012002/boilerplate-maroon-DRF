@@ -17,10 +17,8 @@ class MyUser(AbstractUser):
     id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     dob = models.DateField(null=True)
     phone = PhoneNumberField()
-    followers = models.ManyToManyField("self", related_name='followings', symmetrical=False)
     is_test = models.BooleanField(default=False)
 
-    # not in database
     objects = managers.UserManager()
     tests = managers.TestUserManager()
 
@@ -49,20 +47,6 @@ class MyUser(AbstractUser):
 
     # --------------- PROPERTIES --------------- #
 
-    def is_following_user(self, user):
-        return self.followings.filter(pkid=user.pkid).exists()
-
-    def is_following_user_pk(self, userPk):
-        return self.followings.filter(pkid=userPk).exists()
-
-    @property
-    def total_followers(self):
-        return self.followers.count()
-
-    @property
-    def total_followings(self):
-        return self.followings.count()
-
     # --------------- MUTATORS --------------- #
 
     def update_field(self, *, first_name, last_name, dob, phone):
@@ -73,15 +57,6 @@ class MyUser(AbstractUser):
             if value is not None:
                 setattr(self, attr_name, value)
         self.save()
-
-    def update_followers(self, users: list):
-        self.followers.set(users)
-
-    def unfollow_user(self, *user):
-        self.followings.remove(*user)
-
-    def follow_user(self, *users,):
-        self.followings.add(*users)
 
 
 class Profile(TimeStampedModel):

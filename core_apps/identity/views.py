@@ -4,7 +4,9 @@ from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from core_apps.user import serializers
+from rest_framework.generics import CreateAPIView
+from . import serializers
+from core_apps.user import serializers as user_serializers
 
 
 class MyTokenRefreshView(TokenRefreshView):
@@ -20,5 +22,9 @@ class ProfileFromTokenView(APIView):
 
     def post(self, request):
         user = request.user
-        serializer = serializers.ReadUpdateUserProfile(user)
+        serializer = user_serializers.ReadUpdateUserProfile(user)
         return Response(serializer.data)
+
+
+class ProfileRegistration(CreateAPIView):
+    serializer_class = serializers.RegisterUser

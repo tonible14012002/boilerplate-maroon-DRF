@@ -2,7 +2,6 @@ from typing import Any
 from django.contrib.auth import models
 from django.contrib.auth.hashers import make_password
 from django.db.models.query import QuerySet
-from django.db.models import Count
 
 
 class UserManager(models.UserManager):
@@ -16,12 +15,6 @@ class UserManager(models.UserManager):
             password=make_password(password),
             **kwargs
         )
-
-    def order_by_followers(self, ascendent=False):
-        if ascendent:
-            return self.get_queryset().annotate(num_followers=Count('followers')).order_by('num_followers')
-        else:
-            return self.get_queryset().annotate(num_followers=Count('followers')).order_by('-num_followers')
 
     def order_by_join_day(self, ascendent=False):
         if ascendent:
