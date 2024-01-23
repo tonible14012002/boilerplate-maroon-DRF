@@ -44,6 +44,7 @@ LOCAL_APPS = [
     "core_apps.identity",
     "core_apps.task",
     "core_apps.house",
+    "core_apps.device",
 ]
 
 # Update before Production
