@@ -11,8 +11,6 @@ class House(TimeStampedModel):
     description = models.TextField()
     owner = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='houses')
     address = models.CharField(max_length=200)
-    phone = PhoneNumberField()
-
     class Meta:
         db_table = 'house'
 
