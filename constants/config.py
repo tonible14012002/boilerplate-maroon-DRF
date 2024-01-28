@@ -10,7 +10,9 @@ BUILD_ENVIRONMENT = env.str("BUILD_ENVIRONMENT", "local")
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 
-DEFAULT_DATABASE_URL = env.db("DATABASE_URL", f"sqlite:///{ROOT_DIR}/db.sqlite3")
+DEFAULT_DATABASE_URL = env.db(
+    "DATABASE_URL", f"sqlite:///{ROOT_DIR}/db.sqlite3"
+)
 
 CELERY_BROKER_URL = env.str("BROKER_URL", "amqp://guest:guest@rabbitmq:5672/")
 

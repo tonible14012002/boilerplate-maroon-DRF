@@ -38,12 +38,16 @@ class Command(management.BaseCommand):
     ]
 
     def add_arguments(self, parser):
-        parser.add_argument("count", type=int, help="Number of users to generate")
+        parser.add_argument(
+            "count", type=int, help="Number of users to generate"
+        )
 
     def handle(self, *args, **options):
         count = options["count"]
         self.stdout.write(
-            self.style.WARNING("Password will be set to '123456'.Seeding users...")
+            self.style.WARNING(
+                "Password will be set to '123456'.Seeding users..."
+            )
         )
 
         for _ in range(count):

@@ -25,8 +25,13 @@ class MyJsonRenderer(JSONRenderer):
         status_code = renderer_context["response"].status_code
         formated_data = data
 
-        if not (hasattr(data, "__iter__") and ("data" in data and "pageable" in data)):
+        if not (
+            hasattr(data, "__iter__")
+            and ("data" in data and "pageable" in data)
+        ):
             formated_data = {"pageable": None, "data": data}
 
         formated_data["status_code"] = status_code
-        return super().render(formated_data, accepted_media_type, renderer_context)
+        return super().render(
+            formated_data, accepted_media_type, renderer_context
+        )

@@ -46,7 +46,9 @@ class RegisterUser(serializers.ModelSerializer):
         ]
 
         model = User
-        fields = USER_FIELDS + PROFILE_FIELDS + ["password_confirm", "password"]
+        fields = (
+            USER_FIELDS + PROFILE_FIELDS + ["password_confirm", "password"]
+        )
         extra_kwargs = {"dob": {"required": False}}
 
     def validate(self, attrs):

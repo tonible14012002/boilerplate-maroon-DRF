@@ -28,7 +28,10 @@ class MyBasePagination(PageNumberPagination):
                             [
                                 ("size", self.page.paginator.count),
                                 ("next_page", self.get_next_page_number()),
-                                ("previous_page", self.get_previous_page_number()),
+                                (
+                                    "previous_page",
+                                    self.get_previous_page_number(),
+                                ),
                                 ("total_page", self.page.paginator.num_pages),
                             ]
                         ),
