@@ -1,10 +1,12 @@
 from rest_framework import serializers
 from .models import House
+from core_apps.user.serializers import ReadUpdateUserProfile
 
 class HouseDetailSerializer(serializers.ModelSerializer):
+    owner = ReadUpdateUserProfile(many=True)
     class Meta:
         model = House
-        fields = ['name', 'description', 'address']
+        fields = ['id', 'name', 'description', 'address', 'owner']
 
     def create(self, validated_data):
         user = self.context['request'].user
@@ -12,4 +14,12 @@ class HouseDetailSerializer(serializers.ModelSerializer):
         house.owner.set([user])
         return house
 
+class UpdateHouseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = House
+        fields = ['id', 'name', 'description', 'address']
 
+class DeleteHouseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = House
+        fields = ['id', 'name', 'description', 'address']
