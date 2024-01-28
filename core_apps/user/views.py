@@ -1,35 +1,32 @@
-from rest_framework.viewsets import ViewSet
+from django.contrib.auth import get_user_model
+from rest_framework import filters, views
 from rest_framework.generics import (
+    GenericAPIView,
+    ListAPIView,
     RetrieveAPIView,
     UpdateAPIView,
-    ListAPIView,
-    GenericAPIView
 )
-from . import serializers
-from django.contrib.auth import get_user_model
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import (
-    HTTP_200_OK
-)
+from rest_framework.status import HTTP_200_OK
+from rest_framework.viewsets import ViewSet
 
-from rest_framework.permissions import SAFE_METHODS
+from . import serializers
 from .permissions import IsAccountOwner
-from rest_framework import filters
-from rest_framework import views
 
 User = get_user_model()
 
 
 # Create your views here.
 class UserProfileViewset(ViewSet, RetrieveAPIView, UpdateAPIView, ListAPIView):
-    ''' screens
+    """screens
     - Profile
     - Search User
-    '''
+    """
+
     queryset = User.objects.all()
     serializer_class = serializers.ReadUpdateUserProfile
-    lookup_field = 'id'
+    lookup_field = "id"
 
     def get_permissions(self):
         if self.request.method in SAFE_METHODS:
@@ -47,11 +44,11 @@ class DeleteUserProfile(views.APIView):
 class UserProfileSearch(ListAPIView):
     serializer_class = serializers.ReadUpdateUserProfile
     filter_backends = [filters.SearchFilter]
-    search_fields = ['username', 'last_name', 'first_name', 'email']
+    search_fields = ["username", "last_name", "first_name", "email"]
 
     def get_queryset(self):
         users = User.objects.order_by_join_day()
-        gender = self.request.query_params.get('gender')
+        gender = self.request.query_params.get("gender")
         if gender:
             return users.filter(profile__gender=gender)
         else:
@@ -59,23 +56,24 @@ class UserProfileSearch(ListAPIView):
 
 
 class UserProfileByIds(GenericAPIView):
-    '''
+    """
     method: POST
     body: {
         user_ids: [...],
         detail: true
     }
-    '''
+    """
+
     permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
-        detail = self.request.data.get('detail', None)
+        detail = self.request.data.get("detail", None)
         if detail is not None and detail:
             return serializers.ReadUpdateUserProfile
         return serializers.ReadBasicUserProfile
 
     def get_queryset(self):
-        user_ids = self.request.data.get('user_ids')
+        user_ids = self.request.data.get("user_ids")
         return User.objects.filter(id__in=user_ids)
 
     def post(self, request, *args, **kwargs):

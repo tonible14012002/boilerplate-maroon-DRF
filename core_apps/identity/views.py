@@ -1,12 +1,17 @@
 # Create your views here.
-from .serializers import MyTokenRefreshSerializer, MyTokenObtainPairSerializer
-from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
-from . import serializers
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 from core_apps.user import serializers as user_serializers
+
+from . import serializers
+from .serializers import MyTokenObtainPairSerializer, MyTokenRefreshSerializer
 
 
 class MyTokenRefreshView(TokenRefreshView):

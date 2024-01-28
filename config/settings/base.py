@@ -1,5 +1,6 @@
-from pathlib import Path
 from datetime import timedelta
+from pathlib import Path
+
 from constants import config as config_constant
 
 # Build paths inside the project like this: APP_DIR / 'subdir'.

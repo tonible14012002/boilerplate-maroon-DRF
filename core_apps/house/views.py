@@ -1,7 +1,8 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from . import serializers
 from rest_framework.generics import CreateAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from . import serializers
 
 # Create your views here.
 # APIView provide as_view() method for converting class-based views into function-based views.
