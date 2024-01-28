@@ -71,7 +71,7 @@ class CRUHouseDetail(serializers.ModelSerializer):
     owner_ids = serializers.ListField(
         child=serializers.UUIDField(), write_only=True, required=True
     )
-    rooms = CHouseFromHouse(many=True)
+    rooms = CHouseFromHouse(many=True, required=False)
 
     class Meta:
         model = models.House
