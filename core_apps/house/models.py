@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-
+from . import managers
 from mixin.models import TimeStampedModel
 
 # Create your models here.
@@ -17,6 +17,10 @@ class House(TimeStampedModel):
     class Meta:
         db_table = "house"
 
+    # ----- Property -----
+    def is_user_owner(self, user):
+        return self.owners.filter(pk=user.pk).exists()
+
     # ----- Factory -----
     @classmethod
     def create_new(cls, owners, name, description, address):
@@ -32,7 +36,7 @@ class House(TimeStampedModel):
         attr_names = ["name", "description", "address"]
 
         for value, attr_name in zip(values, attr_names):
-            if value is not None:
+            if value is not None:  # NOTE empty string is still allow
                 setattr(self, attr_name, value)
         self.save()
         return self
@@ -40,10 +44,32 @@ class House(TimeStampedModel):
 
 class Room(TimeStampedModel):
     name = models.CharField(max_length=200)
-    description = models.TextField()
+    description = models.TextField(null=False, blank=True)
     house = models.ForeignKey(
         House, on_delete=models.CASCADE, related_name="rooms"
     )
+    objects = managers.RoomBasicManager()
 
     class Meta:
         db_table = "room"
+
+    # ----- Property -----
+
+    # ----- Factory -----
+    @classmethod
+    def create_new(cls, house, name, description):
+        return cls.objects.create(
+            house=house, name=name, description=description
+        )
+
+    # ----- Mutator -----
+    def update(self, name, description):
+        values = [name, description]
+        attr_names = ["name", "description"]
+
+        for value, attr_name in zip(values, attr_names):
+            if value is not None:  # NOTE empty string is still allow
+                setattr(self, attr_name, value)
+
+        self.save()
+        return self
