@@ -20,6 +20,9 @@ class PhoneBackend(ModelBackend):
             user = User.objects.get(phone=username)
         except User.DoesNotExist:
             return None
+        except User.MultipleObjectsReturned:
+            # authenticate for first user with matched phone number
+            return User.objects.filter(phone=username).order_by("id").first()
         if user.check_password(password):
             return user
         return None
