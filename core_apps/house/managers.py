@@ -1,8 +1,9 @@
-from typing import Any
-
 from django.db import models
-from django.contrib.auth.hashers import make_password
-from django.db.models.query import QuerySet
+
+
+class HouseManager(models.Manager):
+    def filter_by_owner_id(self, user_id):
+        return self.get_queryset().filter(owners__id=user_id)
 
 
 class RoomBasicManager(models.Manager):

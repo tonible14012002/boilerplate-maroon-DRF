@@ -13,9 +13,15 @@ class House(TimeStampedModel):
         settings.AUTH_USER_MODEL, related_name="houses"
     )
     address = models.CharField(max_length=200, null=False, blank=True)
+    objects = managers.HouseManager()
 
     class Meta:
         db_table = "house"
+
+    # ----- Queries -----
+    @classmethod
+    def get_owned_house(cls, user_id):
+        return cls.objects.filter_by_owner_id(user_id)
 
     # ----- Property -----
     def is_user_owner(self, user):
