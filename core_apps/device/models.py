@@ -1,7 +1,9 @@
 from django.db import models
 from mixin.models import TimeStampedModel
-from . import enums
+from . import enums, managers
 from core_apps.house import models as house_models
+from django.shortcuts import get_object_or_404
+from utils import random as random_utils
 
 
 class DeviceSpec(models.Model):
@@ -46,5 +48,48 @@ class Device(TimeStampedModel):
         default=enums.DeviceStatus.OFFLINE,
     )
 
+    objects = managers.DeviceManager()
+
     class Meta:
         db_table = "device"
+
+    # ----- Factory ------
+    @classmethod
+    def create_new_for_room(
+        cls, room_id, spec_id, name, device_type, serial_number
+    ):
+        try:
+            room = house_models.Room.objects.get(id=room_id)
+            specification = DeviceSpec.objects.get(id=spec_id)
+        except house_models.Room.DoesNotExist as e:
+            print(e, flush=True)
+            raise Exception("Room does not exist")
+        return cls.objects.create(
+            room=room,
+            specification=specification,
+            secret=random_utils.id_generator(10),
+            status=enums.DeviceStatus.OFFLINE,
+            name=name,
+            device_type=device_type,
+            serial_number=serial_number,
+        )
+
+    # ----- Queries ------
+    @classmethod
+    def get_room_devices(cls, room_id):
+        return cls.objects.filter_by_room_id(room_id)
+
+    @classmethod
+    def get_house_devices(cls, house_id):
+        house = get_object_or_404(house_models.House, id=house_id)
+        return cls.objects.filter(room__house=house)
+
+    # ------- Mutators -------
+    def update(self, name, room_id):
+        if room_id:
+            room = get_object_or_404(house_models.Room, id=room_id)
+            self.room = room
+        if name is not None:
+            self.name = name
+        self.save()
+        return self

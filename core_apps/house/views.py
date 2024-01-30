@@ -10,9 +10,9 @@ class HouseViewset(
     viewsets.ViewSet,
     generics.CreateAPIView,
     generics.RetrieveAPIView,
-    generics.ListAPIView,
     generics.UpdateAPIView,
     generics.DestroyAPIView,
+    generics.ListAPIView,
 ):
     lookup_field = "id"
     queryset = models.House.objects.all()
@@ -25,6 +25,15 @@ class HouseViewset(
             permissions.IsAuthenticated(),
             house_permissions.IsHouseOwner(),
         ]
+
+
+class HouseOwn(generics.ListAPIView):
+    lookup_field = "id"
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.CRUHouseDetail
+
+    def get_queryset(self):
+        return models.House.get_owned_house(self.request.user.id)
 
 
 class RoomViewset(

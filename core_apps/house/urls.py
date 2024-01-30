@@ -10,6 +10,7 @@ room_router.register("", views.RoomViewset, "rooms")
 
 urlpatterns = [
     path("houses/rooms/", views.RoomAll.as_view()),
+    path("houses/owned/", views.HouseOwn.as_view()),
     path("houses/<uuid:house_id>/rooms/", include(room_router.urls)),
     path("houses/", include(house_router.urls)),
 ]
