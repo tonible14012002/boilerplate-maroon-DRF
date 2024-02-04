@@ -45,6 +45,7 @@ LOCAL_APPS = [
     "core_apps.task",
     "core_apps.house",
     "core_apps.device",
+    "core_apps.permission",
 ]
 
 # Update before Production

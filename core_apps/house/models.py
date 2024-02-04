@@ -9,7 +9,7 @@ from mixin.models import TimeStampedModel
 class House(TimeStampedModel):
     name = models.CharField(max_length=200, null=False, blank=True)
     description = models.TextField(null=False, blank=True)
-    owners = models.ManyToManyField(
+    members = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="houses"
     )
     address = models.CharField(max_length=200, null=False, blank=True)
@@ -20,20 +20,20 @@ class House(TimeStampedModel):
 
     # ----- Queries -----
     @classmethod
-    def get_owned_house(cls, user_id):
-        return cls.objects.filter_by_owner_id(user_id)
+    def get_joined_house(cls, user_id):
+        return cls.objects.filter_by_member_id(user_id)
 
     # ----- Property -----
-    def is_user_owner(self, user):
-        return self.owners.filter(pk=user.pk).exists()
+    def is_user_member(self, user):
+        return self.members.filter(pk=user.pk).exists()
 
     # ----- Factory -----
     @classmethod
-    def create_new(cls, owners, name, description, address):
+    def create_new(cls, members, name, description, address):
         house = cls.objects.create(
             name=name, description=description, address=address
         )
-        house.owners.set(*owners)
+        house.members.set(members)
         return house
 
     # ----- Mutator -----
@@ -60,6 +60,50 @@ class Room(TimeStampedModel):
         db_table = "room"
 
     # ----- Property -----
+    def get_room_members(self):
+        # print("Called", flush=True)
+        from core_apps.permission.models import Permission
+
+        return Permission.get_room_assigned_users(self.id)
+
+    def is_allow_access(self, user):
+        from core_apps.permission.models import Permission, PermissionType
+        from core_apps.permission.enums import PermissionTypeChoices
+
+        return Permission.has_room_permission(
+            user,
+            PermissionType.get_permission_type(
+                PermissionTypeChoices.ACCESS_ROOM
+            ),
+            self,
+        )
+
+    def is_allow_remove(self, user):
+        from core_apps.permission.models import Permission, PermissionType
+        from core_apps.permission.enums import PermissionTypeChoices
+
+        return Permission.has_room_permission(
+            user,
+            PermissionType.get_permission_type(
+                PermissionTypeChoices.DELETE_ROOM
+            ),
+            self,
+        )
+
+    def is_allow_update(self, user):
+        from core_apps.permission.models import Permission, PermissionType
+        from core_apps.permission.enums import PermissionTypeChoices
+
+        return Permission.has_room_permission(
+            user,
+            PermissionType.get_permission_type(
+                PermissionTypeChoices.ASSIGN_MEMBER
+            ),
+            self,
+        )
+
+    def is_allow_assign_member(self, user):
+        return self.is_allow_update(user)
 
     # ----- Factory -----
     @classmethod
@@ -68,6 +112,9 @@ class Room(TimeStampedModel):
             house=house, name=name, description=description
         )
 
+    # -------------------------
+    # ------- Queries ---------
+    # -------------------------
     # ----- Mutator -----
     def update(self, name, description):
         values = [name, description]
