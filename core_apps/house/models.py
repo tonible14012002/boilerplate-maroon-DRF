@@ -27,6 +27,18 @@ class House(TimeStampedModel):
     def is_user_member(self, user):
         return self.members.filter(pk=user.pk).exists()
 
+    def is_user_owner(self, user):
+        from core_apps.permission.enums import HOUSE_PERMISSIONS
+
+        return self.is_user_has_permissions(user, *HOUSE_PERMISSIONS)
+
+    def is_user_has_permissions(self, user, *permission_type_names):
+        from core_apps.permission.models import Permission
+
+        return Permission.has_house_permissions(
+            user, self, *permission_type_names
+        )
+
     # ----- Factory -----
     @classmethod
     def create_new(cls, members, name, description, address):
@@ -67,43 +79,35 @@ class Room(TimeStampedModel):
         return Permission.get_room_assigned_users(self.id)
 
     def is_allow_access(self, user):
-        from core_apps.permission.models import Permission, PermissionType
         from core_apps.permission.enums import PermissionTypeChoices
 
-        return Permission.has_room_permission(
-            user,
-            PermissionType.get_permission_type(
-                PermissionTypeChoices.ACCESS_ROOM
-            ),
-            self,
+        return self.is_user_has_permissions(
+            user, PermissionTypeChoices.ACCESS_ROOM
         )
 
     def is_allow_remove(self, user):
-        from core_apps.permission.models import Permission, PermissionType
         from core_apps.permission.enums import PermissionTypeChoices
 
-        return Permission.has_room_permission(
-            user,
-            PermissionType.get_permission_type(
-                PermissionTypeChoices.DELETE_ROOM
-            ),
-            self,
+        return self.is_user_has_permissions(
+            user, PermissionTypeChoices.DELETE_ROOM
         )
 
     def is_allow_update(self, user):
-        from core_apps.permission.models import Permission, PermissionType
         from core_apps.permission.enums import PermissionTypeChoices
 
-        return Permission.has_room_permission(
-            user,
-            PermissionType.get_permission_type(
-                PermissionTypeChoices.ASSIGN_MEMBER
-            ),
-            self,
+        return self.is_user_has_permissions(
+            user, PermissionTypeChoices.ASSIGN_MEMBER
         )
 
     def is_allow_assign_member(self, user):
         return self.is_allow_update(user)
+
+    def is_user_has_permissions(self, user, *permission_type_names):
+        from core_apps.permission.models import Permission
+
+        return Permission.has_room_permissions(
+            user, self, *permission_type_names
+        )
 
     # ----- Factory -----
     @classmethod

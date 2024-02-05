@@ -78,14 +78,13 @@ class Permission(models.Model):
             cls.grant_houses_permission(user, permission_type, *houses)
 
     @classmethod
-    def is_house_owner(cls, user, house):
-        if not cls.objects.filter(
-            user=user,
-            permission_type__name__in=enums.HOUSE_PERMISSIONS,
-            houses__id=house.id,
-        ).exists():
-            return False
-        return True
+    def has_house_permissions(cls, user, house, *permission_names):
+        """
+        check if user has all house's permission in given permission_names
+        """
+        return cls.objects.filter(
+            user=user, permission_type__name__in=permission_names, houses=house
+        ).distinct().count() == len(permission_names)
 
     # -----------------------------------
     # ----- ROOM PERMISSION HANDLER -----
@@ -93,24 +92,17 @@ class Permission(models.Model):
     @classmethod
     def grant_all_room_permissions(cls, user, *rooms):
         for permission_name in enums.ROOM_PERMISSIONS:
-            permission_type = PermissionType.get_permission_type(
-                permission_name
-            )
-            cls.grant_rooms_permission(user, permission_type, *rooms)
+            cls.grant_rooms_permission(user, permission_name, *rooms)
 
     @classmethod
-    def grant_rooms_permission(cls, user, permission_type, *rooms):
-        try:
-            permission = cls.objects.get(
-                user=user, permission_type=permission_type
-            )
-            permission.rooms.add(*rooms)
-        except cls.DoesNotExist:
-            permission = cls.objects.create(
-                user=user,
-                permission_type=permission_type,
-            )
-            permission.rooms.set(rooms)
+    def grant_rooms_permission(cls, user, permission_name, *rooms):
+        permission, _ = cls.objects.get_or_create(
+            user=user,
+            permission_type=PermissionType.get_permission_type(
+                permission_name
+            ),
+        )
+        permission.rooms.add(*rooms)
 
     @classmethod
     def get_room_assigned_users(cls, room_id):
@@ -124,9 +116,12 @@ class Permission(models.Model):
     # ----- Properties
 
     @classmethod
-    def has_room_permission(cls, user, permission_type, room):
+    def has_room_permissions(cls, user, room, *permission_names):
+        """
+        check if user has all permission in given permission_names
+        """
         return cls.objects.filter(
-            user=user, permission_type=permission_type, rooms=room
-        ).exists()
+            user=user, permission_type__name__in=permission_names, rooms=room
+        ).distinct().count() == len(permission_names)
 
     # ----- Mutator -----

@@ -23,5 +23,12 @@ urlpatterns = [
     ),
     path("houses/<uuid:house_id>/rooms/", include(room_router.urls)),
     path("houses/room-detail/", include(room_detail_router.urls)),
+    path(
+        "houses/<uuid:house_id>/remove-members/",
+        views.RemoveHouseMember.as_view(),
+    ),
+    path(
+        "houses/<uuid:house_id>/add-members/", views.AddHouseMember.as_view()
+    ),
     path("houses/", include(house_router.urls)),
 ]
