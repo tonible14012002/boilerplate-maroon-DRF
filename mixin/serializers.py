@@ -19,4 +19,4 @@ class NoUpdateMixin:
 class NoUpdateSerializer(NoUpdateMixin, serializers.Serializer):
     def get_extra_kwargs(self, field_name, field_kwargs):
         kwargs = super().get_field_kwargs(field_name, field_kwargs)
-        return self.mark_readonly(kwargs)
+        return self.mark_fields_not_updatable(kwargs)

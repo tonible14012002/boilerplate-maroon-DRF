@@ -2,8 +2,8 @@ from django.db import models
 
 
 class HouseManager(models.Manager):
-    def filter_by_owner_id(self, user_id):
-        return self.get_queryset().filter(owners__id=user_id)
+    def filter_by_member_id(self, user_id):
+        return self.get_queryset().filter(members__id=user_id)
 
 
 class RoomBasicManager(models.Manager):
