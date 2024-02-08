@@ -310,3 +310,14 @@ class RemoveHouseMember(serializers.Serializer):
         if not len(set(value)) == len(value):
             raise serializers.ValidationError("Duplicate member id")
         return value
+
+
+class AddRoomMember(serializers.Serializer):
+    add_members = serializers.ListField(
+        child=serializers.UUIDField(), required=True, write_only=True
+    )
+
+    def validate_add_members(self, value):
+        if not len(set(value)) == len(value):
+            raise serializers.ValidationError("Duplicate member id")
+        return value
