@@ -10,6 +10,7 @@ from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 from rest_framework.viewsets import ViewSet
+from schema import paginators
 
 from . import serializers
 from .permissions import IsAccountOwner
@@ -44,15 +45,15 @@ class DeleteUserProfile(views.APIView):
 class UserProfileSearch(ListAPIView):
     serializer_class = serializers.ReadUpdateUserProfile
     filter_backends = [filters.SearchFilter]
-    search_fields = ["username", "last_name", "first_name", "email"]
+    search_fields = ["username", "last_name", "first_name", "email", "phone"]
+    pagination_class = paginators.SmallSizePagination
 
     def get_queryset(self):
         users = User.objects.order_by_join_day()
         gender = self.request.query_params.get("gender")
         if gender:
-            return users.filter(profile__gender=gender)
-        else:
-            return users
+            users = users.filter(profile__gender=gender)
+        return users
 
 
 class UserProfileByIds(GenericAPIView):
@@ -80,8 +81,3 @@ class UserProfileByIds(GenericAPIView):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=HTTP_200_OK)
-
-
-class ProfileApi(views.APIView):
-    def post(self, request):
-        pass

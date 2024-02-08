@@ -4,9 +4,11 @@ from rest_framework import permissions
 from rest_framework import response
 from rest_framework.views import APIView
 from rest_framework import status
+from rest_framework import filters
 from django.contrib.auth import get_user_model
 from django.db.models import Count
 from core_apps.user import serializers as user_serializers
+from schema import paginators
 from . import models
 from . import permissions as house_permissions
 from . import serializers
@@ -213,18 +215,21 @@ class RoomMember(generics.ListAPIView):
         return room.get_room_members()
 
 
-class HouseMemberWithoutRoomPermission(generics.ListAPIView):
+class NonRoomMemberUserProfileSearch(generics.ListAPIView):
     """
     Filter User in current house whoses does not have some permission to a room
     params: `exclude_permissions` (optional) - comma separated list of permission
     """
 
     serializer_class = user_serializers.ReadBasicUserProfile
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["username", "last_name", "first_name", "email", "phone"]
+    pagination_class = paginators.SmallSizePagination
 
     def get_queryset(self):
         room_id = self.kwargs["room_id"]
         exclude_permissions = self.request.query_params.get(
-            "exclude_permissions"
+            "exclude_permissions", ""
         ).split(",")
 
         room = models.Room.objects.select_related("house").get(id=room_id)
@@ -253,3 +258,18 @@ class HousePermissionAll(APIView):
             {"permissions": HOUSE_PERMISSIONS},
             status=status.HTTP_200_OK,
         )
+
+
+class NonHouseMemberUserProfileSearch(generics.ListAPIView):
+    serializer_class = user_serializers.ReadBasicUserProfile
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["username", "last_name", "first_name", "email", "phone"]
+    pagination_class = paginators.SmallSizePagination
+
+    def get_queryset(self):
+        house_id = self.kwargs["house_id"]
+        users = User.objects.exclude(houses__id=house_id).order_by_join_day()
+        gender = self.request.query_params.get("gender")
+        if gender:
+            users = users.filter(profile__gender=gender)
+        return users

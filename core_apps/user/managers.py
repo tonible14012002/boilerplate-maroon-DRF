@@ -5,9 +5,19 @@ from django.contrib.auth.hashers import make_password
 from django.db.models.query import QuerySet
 
 
+class MyUserQuerySet(QuerySet):
+    def order_by_join_day(self, ascendent=False):
+        if ascendent:
+            return self.order_by("date_joined")
+        return self.order_by("-date_joined")
+
+
 class UserManager(models.UserManager):
+    def get_queryset(self) -> QuerySet:
+        return MyUserQuerySet(self.model, using=self._db)
+
     def from_ids(self, *ids):
-        return self.filter(id__in=ids)
+        return self.get_queryset().filter(id__in=ids)
 
     def create(self, **kwargs: Any) -> Any:
         password = kwargs.pop("password", None)
@@ -15,10 +25,7 @@ class UserManager(models.UserManager):
         return super().create(password=make_password(password), **kwargs)
 
     def order_by_join_day(self, ascendent=False):
-        if ascendent:
-            return self.get_queryset().order_by("-date_joined")
-        else:
-            return self.get_queryset().order_by("date_joined")
+        return self.get_queryset().order_by_join_day(ascendent)
 
 
 class TestUserManager(UserManager):
