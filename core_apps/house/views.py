@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework import filters
 from django.contrib.auth import get_user_model
 from django.db.models import Count
+from django.shortcuts import get_object_or_404
 from core_apps.user import serializers as user_serializers
 from schema import paginators
 from . import models
@@ -207,12 +208,17 @@ class AddHouseMember(generics.CreateAPIView):
 
 
 class RoomMember(generics.ListAPIView):
-    serializer_class = user_serializers.ReadBasicUserProfile
+    serializer_class = serializers.RoomMember
 
     def get_queryset(self):
         room_id = self.kwargs["room_id"]
         room = models.Room.objects.get(id=room_id)
         return room.get_room_members()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["room_id"] = self.kwargs["room_id"]
+        return context
 
 
 class NonRoomMemberUserProfileSearch(generics.ListAPIView):
@@ -273,3 +279,21 @@ class NonHouseMemberUserProfileSearch(generics.ListAPIView):
         if gender:
             users = users.filter(profile__gender=gender)
         return users
+
+
+class HouseMember(generics.ListAPIView):
+    serializer_class = serializers.HouseMember
+    permission_classes = [
+        permissions.IsAuthenticated,
+        house_permissions.IsHouseMember,
+    ]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["house_id"] = self.kwargs["house_id"]
+        return context
+
+    def get_queryset(self):
+        house_id = self.kwargs["house_id"]
+        house = get_object_or_404(models.House, id=house_id)
+        return house.members.all()

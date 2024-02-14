@@ -119,7 +119,6 @@ class Permission(models.Model):
         room_pers = cls.objects.select_related("user").filter(
             rooms__id=room_id,
         )
-        print(room_pers, flush=True)
         return list(set(per.user for per in room_pers))
 
     @classmethod
