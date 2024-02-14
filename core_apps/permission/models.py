@@ -55,19 +55,35 @@ class Permission(models.Model):
     # ----- HOUSE PERMISSION HANDLER -----
     # -----------------------------------
 
+    # ----- Mutator -----
+    @classmethod
+    def grant_house_some_permissions(
+        cls, user, permission_type_names, *houses
+    ):
+        permission_types = PermissionType.objects.filter(
+            name__in=permission_type_names
+        )
+        cls.objects.bulk_create(
+            [
+                cls(permission_type=permission_type, user=user)
+                for permission_type in permission_types
+            ],
+            ignore_conflicts=True,
+        )
+        permissions = cls.objects.filter(
+            user=user, permission_type__name__in=permission_type_names
+        )
+        for p in permissions:
+            p.houses.add(*houses)
+
     @classmethod
     def grant_houses_permission(cls, user, permission_type, *houses):
-        try:
-            permission = cls.objects.get(
-                user=user, permission_type=permission_type
-            )
+        permission, created = cls.objects.get_or_create(
+            user=user,
+            permission_type=permission_type,
+        )
+        if created:
             permission.houses.add(*houses)
-        except cls.DoesNotExist:
-            permission = cls.objects.create(
-                user=user,
-                permission_type=permission_type,
-            )
-            permission.houses.set(houses)
 
     @classmethod
     def grant_houses_owner_permissions(cls, user, *houses):
@@ -78,6 +94,18 @@ class Permission(models.Model):
             cls.grant_houses_permission(user, permission_type, *houses)
 
     @classmethod
+    def remove_user_house_permissions(
+        cls, user_id, house_id, permission_names=enums.HOUSE_PERMISSIONS
+    ):
+        removed_count, _ = cls.objects.filter(
+            user__id=user_id,
+            houses__id=house_id,
+            permission_type__name__in=permission_names,
+        ).delete()
+        return removed_count
+
+    # ----- Properties -----
+    @classmethod
     def has_house_permissions(cls, user, house, *permission_names):
         """
         check if user has all house's permission in given permission_names
@@ -86,6 +114,7 @@ class Permission(models.Model):
             user=user, permission_type__name__in=permission_names, houses=house
         ).distinct().count() == len(permission_names)
 
+    # ----- Queries -----
     @classmethod
     def get_user_house_permissions(cls, user, house, flat=False):
         if flat:
@@ -141,3 +170,34 @@ class Permission(models.Model):
         ).distinct().count() == len(permission_names)
 
     # ----- Mutator -----
+
+    @classmethod
+    def remove_user_room_permissions(
+        cls, user_id, room_id, permission_names=enums.ROOM_PERMISSIONS
+    ):
+        removed_count, _ = cls.objects.filter(
+            user__id=user_id,
+            rooms__id=room_id,
+            permission_type__name__in=permission_names,
+        ).delete()
+        return removed_count
+
+    @classmethod
+    def grant_room_some_permissions(
+        cls, user, permission_type_names, *rooms
+    ):  # permission_type_names = ['ACCESS_ROOM', 'DELETE_ROOM', ...room's permission]
+        permission_types = PermissionType.objects.filter(
+            name__in=permission_type_names
+        )
+        cls.objects.bulk_create(
+            [
+                cls(permission_type=permission_type, user=user)
+                for permission_type in permission_types
+            ],
+            ignore_conflicts=True,
+        )
+        permissions = cls.objects.filter(
+            user=user, permission_type__name__in=permission_type_names
+        )
+        for p in permissions:
+            p.rooms.add(*rooms)

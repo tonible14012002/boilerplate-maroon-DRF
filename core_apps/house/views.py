@@ -297,3 +297,38 @@ class HouseMember(generics.ListAPIView):
         house_id = self.kwargs["house_id"]
         house = get_object_or_404(models.House, id=house_id)
         return house.members.all()
+
+
+class UpdateHouseMemberPermissions(generics.UpdateAPIView):
+    serializer_class = serializers.UHouseMember
+
+    permission_classes = [
+        permissions.IsAuthenticated,
+        house_permissions.IsUserHouseOwner,
+    ]
+
+    def get_object(self):
+        user_id = self.kwargs["member_id"]
+        return get_object_or_404(User, id=user_id)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["house_id"] = self.kwargs["house_id"]
+        return context
+
+
+class UpdateRoomMemberPermissions(generics.UpdateAPIView):
+    serializer_class = serializers.URoomMember
+
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    def get_object(self):
+        user_id = self.kwargs["member_id"]
+        return get_object_or_404(User, id=user_id)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["room_id"] = self.kwargs["room_id"]
+        return context

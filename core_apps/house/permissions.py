@@ -26,6 +26,15 @@ class IsHouseOwner(permissions.BasePermission):
         )
 
 
+class IsUserHouseOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        from . import models
+
+        house_id = view.kwargs.get("house_id")
+        house = models.House.objects.get(id=house_id)
+        return house.is_user_owner(request.user)
+
+
 class IsRoomHouseOwner(permissions.BasePermission):
     """
     required `IsAuthenticated` permission
