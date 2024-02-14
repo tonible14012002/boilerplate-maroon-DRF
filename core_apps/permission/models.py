@@ -86,9 +86,18 @@ class Permission(models.Model):
             user=user, permission_type__name__in=permission_names, houses=house
         ).distinct().count() == len(permission_names)
 
+    @classmethod
+    def get_user_house_permissions(cls, user, house, flat=False):
+        if flat:
+            return cls.objects.filter(user=user, houses=house).values_list(
+                "permission_type__name", flat=True
+            )
+        return cls.objects.filter(user=user, houses=house)
+
     # -----------------------------------
     # ----- ROOM PERMISSION HANDLER -----
     # -----------------------------------
+    # ----- Mutator -----
     @classmethod
     def grant_all_room_permissions(cls, user, *rooms):
         for permission_name in enums.ROOM_PERMISSIONS:
@@ -104,6 +113,7 @@ class Permission(models.Model):
         )
         permission.rooms.add(*rooms)
 
+    # ----- Queries -----
     @classmethod
     def get_room_assigned_users(cls, room_id):
         room_pers = cls.objects.select_related("user").filter(
@@ -112,7 +122,14 @@ class Permission(models.Model):
         print(room_pers, flush=True)
         return list(set(per.user for per in room_pers))
 
-    # ----- Queries -----
+    @classmethod
+    def get_user_room_permissions(cls, user, room, flat=False):
+        if flat:
+            return cls.objects.filter(user=user, rooms=room).values_list(
+                "permission_type__name", flat=True
+            )
+        return cls.objects.filter(user=user, rooms=room)
+
     # ----- Properties
 
     @classmethod
