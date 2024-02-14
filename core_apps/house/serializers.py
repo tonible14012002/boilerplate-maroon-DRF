@@ -10,6 +10,30 @@ from . import models
 User = get_user_model()
 
 
+# class HouseMemberSerializer(serializers.ModelSerializer):
+#     avatar = serializers.URLField(source="profile.avatar")
+#     nickname = serializers.CharField(source="profile.nickname")
+#     house_permissions = serializers.SerializerMethodField(
+#         method_name="get_house_permissions"
+#     )
+
+#     def get_house_permissions(self, obj):
+#         user = obj
+#         permission_models.Permission.get_user_house_permissions(
+#             user=user, house=obj
+#         )
+
+#     class Meta:
+#         model = User
+#         fields = [
+#             "id",
+#             "avatar",
+#             "nickname",
+#             "first_name",
+#             "last_name",
+#         ]
+
+
 class CRURoomDetail(
     serializers.ModelSerializer, mixin_serializers.NoUpdateSerializer
 ):
@@ -30,8 +54,13 @@ class CRURoomDetail(
     members = user_serializers.ReadBasicUserProfile(
         many=True, read_only=True, source="get_room_members"
     )
+    # Keep for backward compatibility
     allow_assign_member = serializers.SerializerMethodField(
         method_name="get_is_allow_assign_member"
+    )
+
+    room_permissions = serializers.SerializerMethodField(
+        method_name="get_room_permissions"
     )
 
     class Meta:
@@ -44,6 +73,7 @@ class CRURoomDetail(
             "house_id",
             "members",
             "allow_assign_member",
+            "room_permissions",
         ]
         extra_kwargs = {
             "description": {"required": False},
@@ -53,6 +83,16 @@ class CRURoomDetail(
     def get_is_allow_assign_member(self, obj):
         user = self.context.get("request").user
         return obj.is_allow_assign_member(user)
+
+    def get_room_permissions(self, obj):
+        room = obj
+        room_permissions = (
+            permission_models.Permission.get_user_room_permissions(
+                user=self.context.get("request").user, room=room, flat=True
+            )
+        )
+        print(room_permissions, flush=True)
+        return room_permissions
 
     def update(self, instance, validated_data):
         room = instance
@@ -87,9 +127,21 @@ class CRUHouseDetail(
         Otherwise, use `CRURoomDetail` instead.
         """
 
+        # Keep for backward compatibility
         accessible = serializers.SerializerMethodField(
             method_name="is_current_user_accessible"
         )
+
+        room_permissions = serializers.SerializerMethodField(
+            method_name="get_room_permissions"
+        )
+
+        def get_room_permissions(self, obj):
+            user = self.context.get("request").user
+            room = obj
+            return permission_models.Permission.get_user_room_permissions(
+                user=user, room=room, flat=True
+            )
 
         def is_current_user_accessible(self, obj):
             user = self.context.get("request").user
@@ -97,7 +149,14 @@ class CRUHouseDetail(
 
         class Meta:
             model = models.House
-            fields = ["id", "name", "description", "address", "accessible"]
+            fields = [
+                "id",
+                "name",
+                "description",
+                "address",
+                "accessible",
+                "room_permissions",
+            ]
 
     # NOTE: Read house member use this field
     members = user_serializers.ReadBasicUserProfile(many=True, read_only=True)
@@ -112,6 +171,9 @@ class CRUHouseDetail(
     )
     rooms = CRRoomBasic(many=True, required=False)
     is_owner = serializers.SerializerMethodField(method_name="get_is_owner")
+    house_permissions = serializers.SerializerMethodField(
+        method_name="get_house_permissions"
+    )
 
     class Meta:
         model = models.House
@@ -125,12 +187,20 @@ class CRUHouseDetail(
             "owner_ids",
             "is_owner",
             "rooms",
+            "house_permissions",
         ]
         no_update_fields = ["member_ids", "owner_ids"]
         extra_kwargs = {
             "description": {"required": False},
             "address": {"required": False},
         }
+
+    def get_house_permissions(self, obj):
+        user = self.context.get("request").user
+        house = obj
+        return permission_models.Permission.get_user_house_permissions(
+            user=user, house=house, flat=True
+        )
 
     def get_is_owner(self, obj):
         house = obj
