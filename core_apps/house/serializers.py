@@ -3,6 +3,7 @@ from core_apps.user import serializers as user_serializers
 from core_apps.permission import models as permission_models
 from core_apps.permission import enums as permission_enums
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from mixin import serializers as mixin_serializers
 from utils import list as list_utils
 from . import models
@@ -67,7 +68,6 @@ class CRURoomDetail(
                 user=self.context.get("request").user, room=room, flat=True
             )
         )
-        print(room_permissions, flush=True)
         return room_permissions
 
     def update(self, instance, validated_data):
@@ -282,11 +282,11 @@ class CRUHouseDetail(
 class AddHouseMember(serializers.Serializer):
     class HouseMemberWithPermissionSerializer(serializers.Serializer):
         id = serializers.UUIDField(required=True, write_only=True)
-        permissions = serializers.ListField(
+        house_permissions = serializers.ListField(
             child=serializers.CharField(), required=True
         )
 
-        def validate_permissions(self, value):
+        def validate_house_permissions(self, value):
             if not list_utils.is_subset_list(
                 permission_enums.HOUSE_PERMISSIONS, value
             ):
@@ -367,3 +367,47 @@ class AddRoomMember(serializers.Serializer):
         if not len(set(value)) == len(value):
             raise serializers.ValidationError("Duplicate member id")
         return value
+
+
+class RoomMember(user_serializers.ReadBasicUserProfile):
+    """
+    Include room_id in context for getting room_permissions
+    """
+
+    room_permissions = serializers.SerializerMethodField(
+        method_name="get_room_permissions"
+    )
+
+    def get_room_permissions(self, obj):
+        room_id = self.context.get("room_id")
+        room = get_object_or_404(models.Room, id=room_id)
+        user = obj
+        return permission_models.Permission.get_user_room_permissions(
+            user=user, room=room, flat=True
+        )
+
+    class Meta:
+        model = User
+        fields = user_serializers.ReadBasicUserProfile.Meta.fields + [
+            "room_permissions",
+        ]
+
+
+class HouseMember(user_serializers.ReadBasicUserProfile):
+    house_permissions = serializers.SerializerMethodField(
+        method_name="get_house_permissions"
+    )
+
+    class Meta:
+        model = User
+        fields = user_serializers.ReadBasicUserProfile.Meta.fields + [
+            "house_permissions",
+        ]
+
+    def get_house_permissions(self, obj):
+        house_id = self.context.get("house_id")
+        house = get_object_or_404(models.House, id=house_id)
+        user = obj
+        return permission_models.Permission.get_user_house_permissions(
+            house=house, user=user, flat=True
+        )
