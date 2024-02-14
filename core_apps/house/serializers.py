@@ -10,30 +10,6 @@ from . import models
 User = get_user_model()
 
 
-# class HouseMemberSerializer(serializers.ModelSerializer):
-#     avatar = serializers.URLField(source="profile.avatar")
-#     nickname = serializers.CharField(source="profile.nickname")
-#     house_permissions = serializers.SerializerMethodField(
-#         method_name="get_house_permissions"
-#     )
-
-#     def get_house_permissions(self, obj):
-#         user = obj
-#         permission_models.Permission.get_user_house_permissions(
-#             user=user, house=obj
-#         )
-
-#     class Meta:
-#         model = User
-#         fields = [
-#             "id",
-#             "avatar",
-#             "nickname",
-#             "first_name",
-#             "last_name",
-#         ]
-
-
 class CRURoomDetail(
     serializers.ModelSerializer, mixin_serializers.NoUpdateSerializer
 ):
