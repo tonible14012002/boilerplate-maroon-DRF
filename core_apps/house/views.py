@@ -5,6 +5,7 @@ from rest_framework import response
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework import filters
+from rest_framework.permissions import BasePermission
 from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
@@ -297,3 +298,48 @@ class HouseMember(generics.ListAPIView):
         house_id = self.kwargs["house_id"]
         house = get_object_or_404(models.House, id=house_id)
         return house.members.all()
+
+
+class UpdateHouseMemberPermissions(generics.UpdateAPIView):
+    serializer_class = serializers.UHouseMember
+
+    permission_classes = [
+        permissions.IsAuthenticated,
+        house_permissions.IsUserHouseOwner,
+    ]
+
+    def get_object(self):
+        user_id = self.kwargs["member_id"]
+        return get_object_or_404(User, id=user_id)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["house_id"] = self.kwargs["house_id"]
+        return context
+
+
+class UpdateRoomMemberPermissions(generics.UpdateAPIView):
+    class IsUserAllowedToUpdateMemberPermission(BasePermission):
+        def has_object_permission(self, request, view, obj):
+            from . import models
+
+            user = request.user
+            room = get_object_or_404(models.Room, id=view.kwargs["room_id"])
+            return room.is_allow_assign_member(user)
+
+    serializer_class = serializers.URoomMember
+
+    permission_classes = [
+        permissions.IsAuthenticated,
+        IsUserAllowedToUpdateMemberPermission,
+    ]
+
+    def get_object(self):
+        user_id = self.kwargs["member_id"]
+        return get_object_or_404(User, id=user_id)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        room = get_object_or_404(models.Room, id=self.kwargs["room_id"])
+        context["room"] = room
+        return context
