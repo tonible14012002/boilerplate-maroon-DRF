@@ -5,6 +5,7 @@ from rest_framework import response
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework import filters
+from rest_framework.permissions import BasePermission
 from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
@@ -318,10 +319,19 @@ class UpdateHouseMemberPermissions(generics.UpdateAPIView):
 
 
 class UpdateRoomMemberPermissions(generics.UpdateAPIView):
+    class IsUserAllowedToUpdateMemberPermission(BasePermission):
+        def has_object_permission(self, request, view, obj):
+            from . import models
+
+            user = request.user
+            room = get_object_or_404(models.Room, id=view.kwargs["room_id"])
+            return room.is_allow_assign_member(user)
+
     serializer_class = serializers.URoomMember
 
     permission_classes = [
         permissions.IsAuthenticated,
+        IsUserAllowedToUpdateMemberPermission,
     ]
 
     def get_object(self):
@@ -330,5 +340,6 @@ class UpdateRoomMemberPermissions(generics.UpdateAPIView):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context["room_id"] = self.kwargs["room_id"]
+        room = get_object_or_404(models.Room, id=self.kwargs["room_id"])
+        context["room"] = room
         return context

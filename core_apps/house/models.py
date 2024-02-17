@@ -73,7 +73,6 @@ class Room(TimeStampedModel):
 
     # ----- Property -----
     def get_room_members(self):
-        # print("Called", flush=True)
         from core_apps.permission.models import Permission
 
         return Permission.get_room_assigned_users(self.id)

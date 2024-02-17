@@ -24,7 +24,6 @@ class RoomDeviceViewset(
         return models.Device.get_room_devices(room_id=room_id)
 
     def get_object(self):
-        print(self.kwargs, flush=True)
         return models.Device.objects.get(id=self.kwargs["id"])
 
     def get_serializer(self, *args, **kwargs):

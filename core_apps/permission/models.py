@@ -165,9 +165,10 @@ class Permission(models.Model):
         """
         check if user has all permission in given permission_names
         """
-        return cls.objects.filter(
+        permissions = cls.objects.filter(
             user=user, permission_type__name__in=permission_names, rooms=room
-        ).distinct().count() == len(permission_names)
+        ).distinct()
+        return permissions.count() >= len(permission_names)
 
     # ----- Mutator -----
 

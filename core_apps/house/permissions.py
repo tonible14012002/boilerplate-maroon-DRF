@@ -78,6 +78,7 @@ class IsRoomAdmin(permissions.BasePermission):
 class BaseHasHousePermission(permissions.BasePermission):
     """
     Base genericAPI Permission Class for checking house permission
+    Can only used for View that has use `models.House`
     """
 
     permission_type_names = None

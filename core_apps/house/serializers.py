@@ -476,7 +476,7 @@ class UHouseMember(serializers.ModelSerializer):
 
 class URoomMember(serializers.ModelSerializer):
     """
-    Include `house_id` in serializer context for getting house_permissions
+    REQUIRED: Include `room` instance in serializer context
     """
 
     update_room_permissions = serializers.MultipleChoiceField(
@@ -491,27 +491,24 @@ class URoomMember(serializers.ModelSerializer):
         fields = ["id", "room_permissions", "update_room_permissions"]
 
     def get_room_permissions(self, obj):
-        room_id = self.context.get("room_id")
+        room = self.context.get("room")
         user = obj
-        room = get_object_or_404(models.Room, id=room_id)
         return permission_models.Permission.get_user_room_permissions(
             user=user, room=room, flat=True
         )
 
     def update(self, instance, validated_data):
         user = instance
-        room_id = self.context.get("room_id")
+        room = self.context.get("room")
         user_room_permission_names = validated_data.get(
             "update_room_permissions", []
         )
         permission_models.Permission.remove_user_room_permissions(
             user_id=user.id,
-            room_id=room_id,
+            room_id=room.id,
             permission_names=permission_enums.ROOM_PERMISSIONS,
         )
         permission_models.Permission.grant_room_some_permissions(
-            user,
-            user_room_permission_names,
-            get_object_or_404(models.House, id=room_id),
+            user, user_room_permission_names, room
         )
         return user
