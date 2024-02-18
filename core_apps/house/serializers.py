@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from core_apps.user import serializers as user_serializers
+from core_apps.device import models as device_models
+from core_apps.device import serializers as device_serializers
 from core_apps.permission import models as permission_models
 from core_apps.permission import enums as permission_enums
 from django.contrib.auth import get_user_model
@@ -41,6 +43,8 @@ class CRURoomDetail(
         method_name="get_room_permissions"
     )
 
+    devices = device_serializers.CRUDevice(many=True, read_only=True)
+
     class Meta:
         model = models.Room
         fields = [
@@ -52,6 +56,7 @@ class CRURoomDetail(
             "members",
             "allow_assign_member",
             "room_permissions",
+            "devices",
         ]
         extra_kwargs = {
             "description": {"required": False},
@@ -135,6 +140,21 @@ class CRUHouseDetail(
                 "room_permissions",
             ]
 
+    class RDevice(device_serializers.CRUDevice):
+        allow_access = serializers.SerializerMethodField(
+            method_name="is_allow_access"
+        )
+
+        class Meta(device_serializers.CRUDevice.Meta):
+            fields = device_serializers.CRUDevice.Meta.fields + [
+                "allow_access"
+            ]
+
+        def is_allow_access(self, obj):
+            room = obj.room
+            user = self.context.get("request").user
+            return room.is_allow_access(user)
+
     # NOTE: Read house member use this field
     members = user_serializers.ReadBasicUserProfile(many=True, read_only=True)
 
@@ -152,6 +172,10 @@ class CRUHouseDetail(
         method_name="get_house_permissions"
     )
 
+    devices = RDevice(
+        many=True, source="get_all_devices_in_rooms", read_only=True
+    )
+
     class Meta:
         model = models.House
         fields = [
@@ -164,6 +188,7 @@ class CRUHouseDetail(
             "owner_ids",
             "is_owner",
             "rooms",
+            "devices",
             "house_permissions",
         ]
         no_update_fields = ["member_ids", "owner_ids"]
