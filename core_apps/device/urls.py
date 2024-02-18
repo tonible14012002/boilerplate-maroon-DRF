@@ -12,5 +12,9 @@ device_spec_router.register(
 
 urlpatterns = [
     path("room/<uuid:room_id>/devices/", include(device_router.urls)),
+    path(
+        "devices/<uuid:id>/",
+        views.RetrieveDeviceDetailView.as_view(),
+    ),
     path("specifications/", include(device_spec_router.urls)),
 ]

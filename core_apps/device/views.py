@@ -28,7 +28,7 @@ class RoomDeviceViewset(
 
     def get_queryset(self):
         room = self.get_room()
-        return models.Device.get_room_devices(room_id=room.id)
+        return models.Device.get_room_devices(room=room)
 
     def get_object(self):
         return models.Device.objects.get(id=self.kwargs["id"])
@@ -74,3 +74,29 @@ class DeviceSpecViewset(
         "power",
     ]
     pagination_class = paginators.SmallSizePagination
+
+
+class RetrieveDeviceDetailView(generics.RetrieveAPIView):
+    lookup_field = "id"
+    serializer_class = serializers.RDeviceDetail
+    permission_classes = [
+        permissions.IsAuthenticated,
+        device_permissions.HasUpdateRoomPermission,
+    ]
+    queryset = models.Device.objects.all()
+
+    def get_object(self):
+        return self.get_device()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["room"] = self.device.room
+        return context
+
+    def get_device(self):
+        if not hasattr(self, "device"):
+            self.device = models.Device.objects.get(id=self.kwargs["id"])
+        return self.device
+
+    def get_room(self):
+        return self.get_device().room
