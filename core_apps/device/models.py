@@ -56,10 +56,9 @@ class Device(TimeStampedModel):
     # ----- Factory ------
     @classmethod
     def create_new_for_room(
-        cls, room_id, spec_id, name, device_type, serial_number
+        cls, room, spec_id, name, device_type, serial_number
     ):
         try:
-            room = house_models.Room.objects.get(id=room_id)
             specification = DeviceSpec.objects.get(id=spec_id)
         except house_models.Room.DoesNotExist as e:
             print(e, flush=True)
@@ -76,19 +75,24 @@ class Device(TimeStampedModel):
 
     # ----- Queries ------
     @classmethod
-    def get_room_devices(cls, room_id):
-        return cls.objects.filter_by_room_id(room_id)
+    def get_room_devices_by_id(cls, room_id):
+        return cls.objects.filter(room__id=room_id)
+
+    @classmethod
+    def get_room_devices(cls, room):
+        return cls.objects.filter(room=room)
 
     @classmethod
     def get_house_devices(cls, house_id):
         house = get_object_or_404(house_models.House, id=house_id)
         return cls.objects.filter(room__house=house)
 
+    # ------ Properties ------
+    def get_room_users(self):
+        return self.room.get_room_members()
+
     # ------- Mutators -------
-    def update(self, name, room_id):
-        if room_id:
-            room = get_object_or_404(house_models.Room, id=room_id)
-            self.room = room
+    def update(self, name):
         if name is not None:
             self.name = name
         self.save()

@@ -39,6 +39,11 @@ class House(TimeStampedModel):
             user, self, *permission_type_names
         )
 
+    def get_all_devices_in_rooms(self):
+        from core_apps.device.models import Device
+
+        return Device.get_house_devices(self.id)
+
     # ----- Factory -----
     @classmethod
     def create_new(cls, members, name, description, address):
