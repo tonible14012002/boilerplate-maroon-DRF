@@ -19,6 +19,7 @@ class RDeiviceSpecDetail(serializers.ModelSerializer):
             "storage",
             "memory",
             "power",
+            "image",
         ]
 
 

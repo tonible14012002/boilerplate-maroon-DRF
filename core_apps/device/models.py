@@ -17,6 +17,7 @@ class DeviceSpec(models.Model):
     storage = models.CharField(max_length=255)
     memory = models.CharField(max_length=255)
     power = models.CharField(max_length=255)
+    image = models.URLField(max_length=255, null=False, blank=True, default="")
 
     class Meta:
         db_table = "device_spec"
