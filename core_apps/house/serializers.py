@@ -99,6 +99,17 @@ class CRURoomDetail(
             raise serializers.ValidationError("House not found")
 
 
+class RHouseBasic(serializers.ModelSerializer):
+    class Meta:
+        model = models.House
+        fields = [
+            "id",
+            "name",
+            "address",
+            "description",
+        ]
+
+
 class CRUHouseDetail(
     serializers.ModelSerializer, mixin_serializers.NoUpdateSerializer
 ):
@@ -235,14 +246,28 @@ class CRUHouseDetail(
         return super().validate(attrs)
 
     def update(self, instance, validated_data):
-        house = instance
-        # If member_ids is not None, update the members
+        from core_apps.notification.models import Notification
 
-        return house.update(
+        house = instance
+        to_update_fields = [
+            field for field in validated_data if field in validated_data
+        ]
+
+        old_values = [getattr(house, f) for f in to_update_fields]
+
+        Notification.create_update_house_metadata_notification(
+            house=house,
+            updator=self.context.get("request").user,
+            update_field_names=to_update_fields,
+            old_values=old_values,
+        )
+
+        house.update(
             name=validated_data.get("name", None),
             description=validated_data.get("description", None),
             address=validated_data.get("address", None),
         )
+        return house
 
     def create(self, validated_data):
         member_ids = validated_data.pop("member_ids", [])
@@ -335,6 +360,7 @@ class AddHouseMember(serializers.Serializer):
 
     def create(self, validated_data):
         from core_apps.permission.models import Permission, PermissionType
+        from core_apps.notification.models import Notification
 
         to_add_members = validated_data["add_members"]
         house_id = validated_data["house_id"]
@@ -387,6 +413,13 @@ class AddHouseMember(serializers.Serializer):
         )
         house.members.add(*users)
 
+        # Notification
+        Notification.create_add_house_member_notification(
+            house=house,
+            invitor=self.context.get("request").user,
+            new_members=users,
+        )
+        # FIXME: Fire notifications to all house members except invitor.
         return house
 
 

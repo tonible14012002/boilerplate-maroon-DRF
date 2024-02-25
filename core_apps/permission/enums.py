@@ -33,14 +33,6 @@ class PermissionTypeChoices(models.TextChoices):
         "Assign Room Permission",
     )  # Assign room permission
 
-    @classmethod
-    def get_all_house_owner_permission_choices(cls):
-        return [
-            cls.REMOVE_HOUSE,
-            cls.INVITE_HOUSE_MEMBER,
-            cls.REMOVE_HOUSE_MEMBER,
-        ]
-
 
 HOUSE_PERMISSIONS = [
     PermissionTypeChoices.REMOVE_HOUSE,
