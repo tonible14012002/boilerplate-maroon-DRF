@@ -46,6 +46,7 @@ LOCAL_APPS = [
     "core_apps.house",
     "core_apps.device",
     "core_apps.permission",
+    "core_apps.notification",
 ]
 
 # Update before Production

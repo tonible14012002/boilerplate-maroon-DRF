@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -25,6 +26,7 @@ urlpatterns = [
     path("api/identity-services/", include("core_apps.identity.urls")),
     path("api/house-services/", include("core_apps.house.urls")),
     path("api/device-services/", include("core_apps.device.urls")),
+    path("api/notification-services/", include("core_apps.notification.urls")),
 ]
 
 if settings.DEBUG:

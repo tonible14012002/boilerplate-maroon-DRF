@@ -78,12 +78,11 @@ class Permission(models.Model):
 
     @classmethod
     def grant_houses_permission(cls, user, permission_type, *houses):
-        permission, created = cls.objects.get_or_create(
+        permission, _ = cls.objects.get_or_create(
             user=user,
             permission_type=permission_type,
         )
-        if created:
-            permission.houses.add(*houses)
+        permission.houses.add(*houses)
 
     @classmethod
     def grant_houses_owner_permissions(cls, user, *houses):
