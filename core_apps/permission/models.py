@@ -57,9 +57,7 @@ class Permission(models.Model):
 
     # ----- Mutator -----
     @classmethod
-    def grant_house_some_permissions(
-        cls, user, permission_type_names, *houses
-    ):
+    def grant_houses_permissions(cls, user, permission_type_names, *houses):
         permission_types = PermissionType.objects.filter(
             name__in=permission_type_names
         )
@@ -77,23 +75,11 @@ class Permission(models.Model):
             p.houses.add(*houses)
 
     @classmethod
-    def grant_houses_permission(cls, user, permission_type, *houses):
-        permission, _ = cls.objects.get_or_create(
-            user=user,
-            permission_type=permission_type,
-        )
-        permission.houses.add(*houses)
-
-    @classmethod
     def grant_houses_owner_permissions(cls, user, *houses):
-        for permission_name in enums.HOUSE_PERMISSIONS:
-            permission_type = PermissionType.get_permission_type(
-                permission_name
-            )
-            cls.grant_houses_permission(user, permission_type, *houses)
+        cls.grant_houses_permissions(user, enums.HOUSE_PERMISSIONS, *houses)
 
     @classmethod
-    def remove_user_house_permissions(
+    def remove_house_permissions(
         cls, user_id, house_id, permission_names=enums.HOUSE_PERMISSIONS
     ):
         removed_count, _ = cls.objects.filter(
@@ -128,18 +114,40 @@ class Permission(models.Model):
     # ----- Mutator -----
     @classmethod
     def grant_all_room_permissions(cls, user, *rooms):
-        for permission_name in enums.ROOM_PERMISSIONS:
-            cls.grant_rooms_permission(user, permission_name, *rooms)
+        cls.grant_rooms_permissions(
+            user=user, permission_type_names=enums.ROOM_PERMISSIONS, *rooms
+        )
 
     @classmethod
-    def grant_rooms_permission(cls, user, permission_name, *rooms):
-        permission, _ = cls.objects.get_or_create(
-            user=user,
-            permission_type=PermissionType.get_permission_type(
-                permission_name
-            ),
+    def remove_user_room_permissions(
+        cls, user_id, room_id, permission_names=enums.ROOM_PERMISSIONS
+    ):
+        removed_count, _ = cls.objects.filter(
+            user__id=user_id,
+            rooms__id=room_id,
+            permission_type__name__in=permission_names,
+        ).delete()
+        return removed_count
+
+    @classmethod
+    def grant_rooms_permissions(
+        cls, user, permission_type_names, *rooms
+    ):  # permission_type_names = ['ACCESS_ROOM', 'DELETE_ROOM', ...room's permission]
+        permission_types = PermissionType.objects.filter(
+            name__in=permission_type_names
         )
-        permission.rooms.add(*rooms)
+        cls.objects.bulk_create(
+            [
+                cls(permission_type=permission_type, user=user)
+                for permission_type in permission_types
+            ],
+            ignore_conflicts=True,
+        )
+        permissions = cls.objects.filter(
+            user=user, permission_type__name__in=permission_type_names
+        )
+        for p in permissions:
+            p.rooms.add(*rooms)
 
     # ----- Queries -----
     @classmethod
@@ -168,36 +176,3 @@ class Permission(models.Model):
             user=user, permission_type__name__in=permission_names, rooms=room
         ).distinct()
         return permissions.count() >= len(permission_names)
-
-    # ----- Mutator -----
-
-    @classmethod
-    def remove_user_room_permissions(
-        cls, user_id, room_id, permission_names=enums.ROOM_PERMISSIONS
-    ):
-        removed_count, _ = cls.objects.filter(
-            user__id=user_id,
-            rooms__id=room_id,
-            permission_type__name__in=permission_names,
-        ).delete()
-        return removed_count
-
-    @classmethod
-    def grant_room_some_permissions(
-        cls, user, permission_type_names, *rooms
-    ):  # permission_type_names = ['ACCESS_ROOM', 'DELETE_ROOM', ...room's permission]
-        permission_types = PermissionType.objects.filter(
-            name__in=permission_type_names
-        )
-        cls.objects.bulk_create(
-            [
-                cls(permission_type=permission_type, user=user)
-                for permission_type in permission_types
-            ],
-            ignore_conflicts=True,
-        )
-        permissions = cls.objects.filter(
-            user=user, permission_type__name__in=permission_type_names
-        )
-        for p in permissions:
-            p.rooms.add(*rooms)

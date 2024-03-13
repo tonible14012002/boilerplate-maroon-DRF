@@ -20,11 +20,6 @@ User = get_user_model()
 
 # Create your views here.
 class UserProfileViewset(ViewSet, RetrieveAPIView, UpdateAPIView, ListAPIView):
-    """screens
-    - Profile
-    - Search User
-    """
-
     queryset = User.objects.all()
     serializer_class = serializers.ReadUpdateUserProfile
     lookup_field = "id"

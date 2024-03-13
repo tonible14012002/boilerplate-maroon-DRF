@@ -14,18 +14,25 @@ from . import models
 User = get_user_model()
 
 
+class RHouseBasic(serializers.ModelSerializer):
+    class Meta:
+        model = models.House
+        fields = [
+            "id",
+            "name",
+            "address",
+            "description",
+        ]
+
+
 class CRURoomDetail(
     serializers.ModelSerializer, mixin_serializers.NoUpdateSerializer
 ):
-    class RHouseBasic(serializers.ModelSerializer):
-        class Meta:
-            model = models.House
-            fields = ["id", "name"]
-
     """
     CREATE: Required request context for grant room permission to request.user
     UPDATE: Update name, description fields only
     """
+
     # NOTE: `house_id` field is only required when creating a new room
     # Updating existed room doesn't require `house_id` field
 
@@ -97,17 +104,6 @@ class CRURoomDetail(
             return room
         except models.House.DoesNotExist:
             raise serializers.ValidationError("House not found")
-
-
-class RHouseBasic(serializers.ModelSerializer):
-    class Meta:
-        model = models.House
-        fields = [
-            "id",
-            "name",
-            "address",
-            "description",
-        ]
 
 
 class CRUHouseDetail(
@@ -240,7 +236,7 @@ class CRUHouseDetail(
             member_ids = attrs.get("member_ids", [])
             owner_ids = attrs.get("owner_ids", [])
 
-            self.validate_owners_members_ids(
+            self._validate_owners_members_ids(
                 member_ids=member_ids, owner_ids=owner_ids
             )
         return super().validate(attrs)
@@ -311,7 +307,7 @@ class CRUHouseDetail(
 
         return house
 
-    def validate_owners_members_ids(self, member_ids, owner_ids):
+    def _validate_owners_members_ids(self, member_ids, owner_ids):
         if not owner_ids:
             raise serializers.ValidationError("At least one owner is required")
 
@@ -434,17 +430,6 @@ class RemoveHouseMember(serializers.Serializer):
         return value
 
 
-class AddRoomMember(serializers.Serializer):
-    add_members = serializers.ListField(
-        child=serializers.UUIDField(), required=True, write_only=True
-    )
-
-    def validate_add_members(self, value):
-        if not len(set(value)) == len(value):
-            raise serializers.ValidationError("Duplicate member id")
-        return value
-
-
 class RoomMember(user_serializers.ReadBasicUserProfile):
     """
     Include room_id in context for getting room_permissions
@@ -519,12 +504,12 @@ class UHouseMember(serializers.ModelSerializer):
         user_house_permission_names = validated_data.get(
             "update_house_permissions", []
         )
-        permission_models.Permission.remove_user_house_permissions(
+        permission_models.Permission.remove_house_permissions(
             user_id=user.id,
             house_id=house_id,
             permission_names=permission_enums.HOUSE_PERMISSIONS,
         )
-        permission_models.Permission.grant_house_some_permissions(
+        permission_models.Permission.grant_houses_permissions(
             user,
             user_house_permission_names,
             get_object_or_404(models.House, id=house_id),
@@ -566,7 +551,7 @@ class URoomMember(serializers.ModelSerializer):
             room_id=room.id,
             permission_names=permission_enums.ROOM_PERMISSIONS,
         )
-        permission_models.Permission.grant_room_some_permissions(
+        permission_models.Permission.grant_rooms_permissions(
             user, user_room_permission_names, room
         )
         return user
