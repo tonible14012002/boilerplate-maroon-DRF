@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from core_apps.user import serializers as user_serializers
-from core_apps.device import models as device_models
 from core_apps.device import serializers as device_serializers
 from core_apps.permission import models as permission_models
 from core_apps.permission import enums as permission_enums
