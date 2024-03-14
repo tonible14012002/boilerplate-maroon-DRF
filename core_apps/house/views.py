@@ -234,10 +234,18 @@ class NonRoomMemberUserProfileSearch(generics.ListAPIView):
     pagination_class = paginators.SmallSizePagination
 
     def get_queryset(self):
+        from core_apps.permission.enums import PermissionTypeChoices
+
         room_id = self.kwargs["room_id"]
         exclude_permissions = self.request.query_params.get(
             "exclude_permissions", ""
         ).split(",")
+
+        exclude_permissions = set(
+            [*exclude_permissions, PermissionTypeChoices.ACCESS_ROOM]
+        )
+
+        print(exclude_permissions, flush=True)
 
         room = models.Room.objects.select_related("house").get(id=room_id)
         house = room.house
@@ -343,3 +351,14 @@ class UpdateRoomMemberPermissions(generics.UpdateAPIView):
         room = get_object_or_404(models.Room, id=self.kwargs["room_id"])
         context["room"] = room
         return context
+
+
+class AddRoomMembers(generics.CreateAPIView):
+    lookup_field = "room_id"
+    queryset = models.Room.objects.all()
+    serializer_class = serializers.AddRoomMember
+    permission_classes = []  # FIXME: add permissions
+
+    def get_serializer(self, *args, **kwargs):
+        kwargs["data"].setdefault("room_id", self.kwargs["room_id"])
+        return super().get_serializer(*args, **kwargs)

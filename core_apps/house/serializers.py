@@ -368,6 +368,7 @@ class AddHouseMember(serializers.Serializer):
                 for permission in member_data["house_permissions"]
             )
         )
+
         permission_type_mapping = {
             permission_type.name: permission_type
             for permission_type in permission_types
@@ -376,6 +377,7 @@ class AddHouseMember(serializers.Serializer):
         members = User.objects.filter(
             id__in=set([member["id"] for member in to_add_members])
         )
+
         members_mapping = {member.id: member for member in members}
 
         permission_to_create = [
@@ -555,3 +557,137 @@ class URoomMember(serializers.ModelSerializer):
             user, user_room_permission_names, room
         )
         return user
+
+
+class AddRoomMember(serializers.Serializer):
+    class RoomMemberWithPermissionSerializer(serializers.Serializer):
+        id = serializers.UUIDField(required=True, write_only=True)
+        room_permissions = serializers.ListField(
+            child=serializers.CharField(), required=True
+        )
+
+        def validate_room_permissions(self, value):
+            if not list_utils.is_subset_list(
+                permission_enums.ROOM_PERMISSIONS, value
+            ):
+                raise serializers.ValidationError(
+                    "Incorrect room permission enum value"
+                )
+            return value
+
+    add_members = RoomMemberWithPermissionSerializer(
+        many=True, required=True, write_only=True
+    )
+    room_id = serializers.UUIDField(required=True, write_only=True)
+
+    def validate_add_members(self, value):
+        if not len(value):
+            raise serializers.ValidationError(
+                "At least one member is required"
+            )
+        return value
+
+    def create(self, validated_data):
+        from core_apps.notification.models import Notification
+
+        to_add_members = validated_data["add_members"]
+        room_id = validated_data["room_id"]
+
+        room = models.Room.objects.select_related("house").get(id=room_id)
+        new_members = User.objects.filter(
+            id__in=set([member["id"] for member in to_add_members])
+        )
+
+        members_mapping = {member.id: member for member in new_members}
+
+        is_valid = self._is_house_member(
+            list(members_mapping.keys()), room.house
+        )
+
+        if not is_valid:
+            raise serializers.ValidationError("User not member of houses")
+
+        self._create_permisison_users(to_add_members, members_mapping, room)
+
+        Notification.create_add_room_member_notification(
+            room=room,
+            invitor=self.context.get("request").user,
+            new_members=new_members,
+        )
+
+        return room
+
+    def _is_house_member(self, user_ids, house):
+        """
+        Check users are members of the house and have'nt added to room"""
+        total_house_members = house.members.filter(id__in=user_ids).count()
+        # check if any user already has permission to access room
+
+        return total_house_members == len(user_ids)
+
+    def _get_permission_mapping(self, add_members_data):
+        from core_apps.permission.models import PermissionType
+
+        permission_types = PermissionType.objects.filter(
+            name__in=[
+                *set(
+                    permission
+                    for member_data in add_members_data
+                    for permission in member_data["room_permissions"]
+                ),
+                permission_enums.PermissionTypeChoices.ACCESS_ROOM,
+            ]
+        )
+
+        permission_type_mapping = {
+            permission_type.name: permission_type
+            for permission_type in permission_types
+        }
+        return permission_type_mapping
+
+    def _create_permisison_users(
+        self, add_members_data, members_mapping, room
+    ):
+        from core_apps.permission.models import Permission
+        from core_apps.permission.enums import PermissionTypeChoices
+
+        permission_type_mapping = self._get_permission_mapping(
+            add_members_data
+        )
+
+        permission_to_create = [
+            Permission(
+                permission_type=permission_type_mapping[permission_name],
+                user=members_mapping[member_data["id"]],
+            )
+            for member_data in add_members_data
+            for permission_name in member_data["room_permissions"]
+        ]
+
+        # Access room as default permission
+        for member_data in add_members_data:
+            permission_to_create.append(
+                Permission(
+                    permission_type=permission_type_mapping[
+                        PermissionTypeChoices.ACCESS_ROOM
+                    ],
+                    user=members_mapping[member_data["id"]],
+                )
+            )
+
+        Permission.objects.bulk_create(
+            permission_to_create, ignore_conflicts=True
+        )
+
+        query = Q()
+        for member_data in add_members_data:
+            query |= Q(
+                user_id=member_data["id"],
+                permission_type__name__in=member_data["room_permissions"],
+            )
+        correspond_permissions = Permission.objects.filter(query)
+
+        for p in correspond_permissions:
+            p.rooms.add(room)
+
+        return correspond_permissions

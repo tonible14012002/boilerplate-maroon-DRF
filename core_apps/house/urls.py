@@ -19,6 +19,10 @@ urlpatterns = [
     # Room API
     path("houses/rooms/", views.RoomAll.as_view()),
     # Room Detail API
+    path(
+        "houses/rooms/<uuid:room_id>/add-members/",
+        views.AddRoomMembers.as_view(),
+    ),
     path("houses/rooms/<uuid:room_id>/members/", views.RoomMember.as_view()),
     path(
         "houses/rooms/<uuid:room_id>/add-members/search/",

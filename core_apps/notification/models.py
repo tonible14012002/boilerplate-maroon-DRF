@@ -41,7 +41,7 @@ class Notification(TimeStampedModel):
 
     # --------- Factory Methods ---------
     @classmethod
-    def create_house_notification(
+    def _create_house_notification(
         cls, event_code, house, label, description, meta: dict = None
     ):
         return cls.objects.create(
@@ -53,26 +53,10 @@ class Notification(TimeStampedModel):
         )
 
     @classmethod
-    def soft_create_house_notification(
-        cls, house, event_code, user, label, description, meta: dict = None
-    ):
-        """
-        Use this function in bulk_create
-        """
-        return cls(
-            house=house,
-            event_code=event_code,
-            user=user,
-            label=label,
-            description=description,
-            meta=meta,
-        )
-
-    @classmethod
     def create_add_house_member_notification(cls, house, invitor, new_members):
         from core_apps.user.serializers import ReadBasicUserProfile
 
-        notification = cls.create_house_notification(
+        notification = cls._create_house_notification(
             house=house,
             event_code=notification_enums.EventCodeChoices.ADD_MEMBER_TO_HOUSE,
             label="New member joined",
@@ -107,6 +91,38 @@ class Notification(TimeStampedModel):
                 "house": RHouseBasic(house).data,
                 "update_fields": update_field_names,
                 "old_values": old_values,
+            },
+        )
+        return notification
+
+    @classmethod
+    def _create_room_notification(
+        cls, event_code, room, label, description, meta: dict = None
+    ):
+        return cls.objects.create(
+            room=room,
+            event_code=event_code,
+            label=label,
+            description=description,
+            meta=meta,
+        )
+
+    @classmethod
+    def create_add_room_member_notification(cls, room, invitor, new_members):
+        from core_apps.user.serializers import ReadBasicUserProfile
+        from . import enums
+
+        notification = cls._create_room_notification(
+            room=room,
+            event_code=enums.EventCodeChoices.INVITE_MEMBER_TO_ROOM,
+            label="Add members to room",
+            description="",
+            meta={
+                "invitor": ReadBasicUserProfile(invitor).data,
+                "description": f"{invitor.username} invited new members to room {room.name}",
+                "new_members": ReadBasicUserProfile(
+                    new_members, many=True
+                ).data,
             },
         )
         return notification

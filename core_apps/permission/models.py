@@ -97,7 +97,7 @@ class Permission(models.Model):
         """
         return cls.objects.filter(
             user=user, permission_type__name__in=permission_names, houses=house
-        ).distinct().count() == len(permission_names)
+        ).distinct().count() >= len(permission_names)
 
     # ----- Queries -----
     @classmethod
@@ -154,6 +154,7 @@ class Permission(models.Model):
     def get_room_assigned_users(cls, room_id):
         room_pers = cls.objects.select_related("user").filter(
             rooms__id=room_id,
+            permission_type__name__in=enums.ROOM_PERMISSIONS,
         )
         return list(set(per.user for per in room_pers))
 
