@@ -1,93 +1,74 @@
+import uuid
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from phonenumber_field.modelfields import PhoneNumberField
-from mixin.models import TimeStampedModel
 from django_countries.fields import CountryField
-import uuid
-from . import enums
-from . import managers
+from phonenumber_field.modelfields import PhoneNumberField
+
+from mixin.models import TimeStampedModel
+
+from . import enums, managers
 
 
 # Create your models here.
 class MyUser(AbstractUser):
-
     REQUIRED_FIELDS = ["email", "last_name", "first_name"]
 
     pkid = models.BigAutoField(primary_key=True, editable=False)
     id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     dob = models.DateField(null=True)
     phone = PhoneNumberField()
-    followers = models.ManyToManyField("self", related_name='followings', symmetrical=False)
     is_test = models.BooleanField(default=False)
 
-    # not in database
     objects = managers.UserManager()
     tests = managers.TestUserManager()
 
     class Meta:
-        db_table = 'user'
+        db_table = "user"
 
     # --------------- FACTORY --------------- #
 
     @classmethod
-    def create_register(cls, *, username: str, password: str, extra_fields: dict, profile_fields: dict, is_test=False):
+    def create_register(
+        cls,
+        *,
+        username: str,
+        password: str,
+        extra_fields: dict,
+        profile_fields: dict,
+        is_test=False
+    ):
         # NOTE: Use this method for create new user instead of objects.create()
         if is_test:
             factory = cls.tests.create
         else:
             factory = cls.objects.create
-        user = factory(
-            username=username,
-            password=password,
-            **extra_fields
-        )
-        Profile.objects.create(
-            user=user,
-            **profile_fields
-        )
+        user = factory(username=username, password=password, **extra_fields)
+        Profile.objects.create(user=user, **profile_fields)
         return user
 
     # --------------- PROPERTIES --------------- #
-
-    def is_following_user(self, user):
-        return self.followings.filter(pkid=user.pkid).exists()
-
-    def is_following_user_pk(self, userPk):
-        return self.followings.filter(pkid=userPk).exists()
-
-    @property
-    def total_followers(self):
-        return self.followers.count()
-
-    @property
-    def total_followings(self):
-        return self.followings.count()
 
     # --------------- MUTATORS --------------- #
 
     def update_field(self, *, first_name, last_name, dob, phone):
         values = [first_name, last_name, dob, phone]
-        attr_names = ['first_name', 'last_name', 'dob', 'phone']
+        attr_names = ["first_name", "last_name", "dob", "phone"]
 
         for value, attr_name in zip(values, attr_names):
             if value is not None:
                 setattr(self, attr_name, value)
         self.save()
 
-    def update_followers(self, users: list):
-        self.followers.set(users)
-
-    def unfollow_user(self, *user):
-        self.followings.remove(*user)
-
-    def follow_user(self, *users,):
-        self.followings.add(*users)
-
 
 class Profile(TimeStampedModel):
-    user = models.OneToOneField(MyUser, on_delete=models.CASCADE, related_name='profile')
-    avatar = models.URLField(default='', max_length=2000)
-    gender = models.CharField(choices=enums.Gender.choices, max_length=20, default=enums.Gender.Other)
+    user = models.OneToOneField(
+        MyUser, on_delete=models.CASCADE, related_name="profile"
+    )
+    avatar = models.URLField(default="", max_length=2000)
+    gender = models.CharField(
+        choices=enums.Gender.choices, max_length=20, default=enums.Gender.Other
+    )
     country = CountryField(null=False, default="VN", blank=True)
     city = models.CharField(max_length=200, default="Ho Chi Minh", blank=True)
     _nickname = models.CharField(max_length=100, null=True, unique=True)
@@ -113,11 +94,11 @@ class Profile(TimeStampedModel):
 
     # Mutators
     def update_field(self, *, city, nickname, gender, avatar):
-        '''
+        """
         update only not None kwargs
-        '''
+        """
         values = [city, nickname, gender, avatar]
-        attr_names = ['city', 'nickname', 'gender', 'avatar']
+        attr_names = ["city", "nickname", "gender", "avatar"]
 
         for value, attr_name in zip(values, attr_names):
             if value is not None:

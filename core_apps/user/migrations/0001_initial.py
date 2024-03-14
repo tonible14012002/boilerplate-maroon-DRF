@@ -22,7 +22,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="MyUser",
             fields=[
-                ("password", models.CharField(max_length=128, verbose_name="password")),
+                (
+                    "password",
+                    models.CharField(max_length=128, verbose_name="password"),
+                ),
                 (
                     "last_login",
                     models.DateTimeField(
@@ -67,7 +70,9 @@ class Migration(migrations.Migration):
                 (
                     "email",
                     models.EmailField(
-                        blank=True, max_length=254, verbose_name="email address"
+                        blank=True,
+                        max_length=254,
+                        verbose_name="email address",
                     ),
                 ),
                 (
@@ -89,7 +94,8 @@ class Migration(migrations.Migration):
                 (
                     "date_joined",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date joined"
+                        default=django.utils.timezone.now,
+                        verbose_name="date joined",
                     ),
                 ),
                 (
@@ -100,7 +106,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "id",
-                    models.UUIDField(default=uuid.uuid4, editable=False, unique=True),
+                    models.UUIDField(
+                        default=uuid.uuid4, editable=False, unique=True
+                    ),
                 ),
                 ("dob", models.DateField(null=True)),
                 (
@@ -158,7 +166,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "id",
-                    models.UUIDField(default=uuid.uuid4, editable=False, unique=True),
+                    models.UUIDField(
+                        default=uuid.uuid4, editable=False, unique=True
+                    ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -183,9 +193,14 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "city",
-                    models.CharField(blank=True, default="Ho Chi Minh", max_length=200),
+                    models.CharField(
+                        blank=True, default="Ho Chi Minh", max_length=200
+                    ),
                 ),
-                ("_nickname", models.CharField(max_length=100, null=True, unique=True)),
+                (
+                    "_nickname",
+                    models.CharField(max_length=100, null=True, unique=True),
+                ),
                 (
                     "user",
                     models.OneToOneField(

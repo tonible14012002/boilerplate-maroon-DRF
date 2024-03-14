@@ -1,9 +1,10 @@
 from django.urls import path
-from .views import MyTokenObtainPairView, MyTokenRefreshView, ProfileFromTokenView
 
+from . import views
 
 urlpatterns = [
-    path('token/', MyTokenObtainPairView.as_view()),
-    path('refresh/', MyTokenRefreshView.as_view()),
-    path('profile/', ProfileFromTokenView.as_view()),
+    path("token/", views.MyTokenObtainPairView.as_view()),
+    path("refresh/", views.MyTokenRefreshView.as_view()),
+    path("me/", views.ProfileFromTokenView.as_view()),
+    path("registration/", views.ProfileRegistration.as_view()),
 ]

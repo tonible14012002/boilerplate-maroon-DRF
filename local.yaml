@@ -15,7 +15,6 @@ services:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
       - ./.envs/.local/.rabbitmq
-      - ./.envs/.local/.cassandra
     # FIXME: Using 3rd provider postgres db
     depends_on:
       - postgres
@@ -80,38 +79,12 @@ services:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
       - ./.envs/.local/.rabbitmq
-      - ./.envs/.local/.cassandra
       - ./.envs/.local/.celery
     depends_on:
       - rabbitmq_server
       - postgres
     networks:
       - instagram-api
-
-  # CASSANDRA
-  cassandra:
-    image: cassandra:latest
-    volumes:
-      - local_cassandra_data:/var/lib/cassandra/data
-    ports:
-      - "9042:9042"
-    expose:
-      - "9042"
-    networks:
-      - instagram-api
-  
-  cassandra_init:
-    depends_on:
-      - cassandra
-    build:
-      context: .
-      dockerfile: ./docker/local/cassandra/Dockerfile
-    env_file:
-      - ./.envs/.local/.cassandra
-    command: cqlsh cassandra -f /schema.cql
-    networks:
-      - instagram-api
-    
 
 networks:
   instagram-api:
@@ -120,6 +93,5 @@ networks:
 volumes:
   static_volume:
   media_volume:
-  local_cassandra_data: {}
   local_postgres_data: {}
   local_postgres_data_backups: {}

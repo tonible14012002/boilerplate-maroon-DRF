@@ -1,3 +1,6 @@
+build-production:
+	docker compose -f production.yaml up --build -d --remove-orphans
+
 build:
 	docker compose -f local.yaml up --build -d --remove-orphans
 up:
@@ -17,9 +20,6 @@ makemigrations:
 
 migrate:
 	docker compose -f local.yaml run --rm api python manage.py migrate --database default
-
-sync_cassandra:
-	docker compose -f local.yaml run --rm api python manage.py sync_cassandra
 
 db_shell:
 	docker compose -f local.yaml run --rm api python manage.py dbshell

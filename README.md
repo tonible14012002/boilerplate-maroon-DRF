@@ -8,7 +8,6 @@ Welcome to Django FastStart Boilerplate – your quick and easy solution for ini
   - Follow / Unfollow
 - local compose
    + posgresql - default database
-   + cassandra - secondary database
    + celery - for async task
    + rabbitmq - used with celery
 - cli for working with containers
